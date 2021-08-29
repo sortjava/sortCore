@@ -44,8 +44,3 @@ public class SortDataServiceImpl implements SortDataService {
         sortDataRepository.deleteById(sortedDataId);
     }
 }
-
-
-
-
-

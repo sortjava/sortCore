@@ -19,13 +19,6 @@ public class ServiceApplication extends SpringBootServletInitializer {
 		SpringApplication.run(ServiceApplication.class, args);
 	}
 
-	/*@Bean
-	public Docket docket() {
-		return (new Docket(DocumentationType.SWAGGER_2)).select()
-				.apis(RequestHandlerSelectors.basePackage("com.sort.sortcore")).paths(PathSelectors.any()).build()
-				.apiInfo(this.apiInfo());
-	}*/
-
 	private ApiInfo apiInfo() {
 		return (new ApiInfoBuilder()).title("Sort API Reference")
 				.version(this.getClass().getPackage().getImplementationVersion()).build();

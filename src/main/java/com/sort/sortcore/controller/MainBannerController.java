@@ -7,7 +7,6 @@ import com.sort.sortcore.data.TxnContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,9 @@ import com.sort.sortcore.service.SortDataService;
 
 import io.swagger.annotations.ApiOperation;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@RequestMapping("/api/sort")
 public class MainBannerController {
 	private static final Logger log = LoggerFactory.getLogger(MainBannerController.class);
 	@Autowired
@@ -62,7 +63,15 @@ public class MainBannerController {
 
 	@PostMapping(value = "/addSortedData", produces = "application/json", consumes = "application/json")
 	public ResponseEntity<SortedData> saveSortedData(@RequestBody SortedData sortedData) {
-		SortedData sortedData1 = sortDataService.insert(sortedData);
+		SortedData sortedData2 = sortDataService.insert(sortedData);
+		return new ResponseEntity<>(sortedData2, HttpStatus.CREATED);
+	}
+
+	@PostMapping(value = "/addListSortedData", produces = "application/json", consumes = "application/json")
+	public ResponseEntity<SortedData> saveListSortedData(@RequestBody List<SortedData> sortedData) {
+		SortedData sortedData1 = new SortedData();
+		sortedData1 = sortedData.get(0);
+		sortedData1 = sortDataService.insert(sortedData1);
 		return new ResponseEntity<>(sortedData1, HttpStatus.CREATED);
 	}
 
