@@ -36,6 +36,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AuthTokenFilter();
     }
 
+    String[] whitelistResources = new String[]{
+            "/api/auth/**","/h2-console/**","/static/**","/templates/**","/css/**","/js/**"
+    };
+
     @Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
@@ -57,7 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**", "/h2-console/**").permitAll()
+                .authorizeRequests().antMatchers(whitelistResources).permitAll()
                 .antMatchers("/api/sort/**", "/api/test/**").permitAll()
                 .anyRequest().authenticated();
         http.headers().frameOptions().disable();

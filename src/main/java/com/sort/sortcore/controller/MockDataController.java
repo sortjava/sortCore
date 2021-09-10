@@ -22,11 +22,6 @@ public class MockDataController {
 	@Autowired
 	MockDataApi mockDataApi;
 
-	@GetMapping({"/"})
-	public String getHealth() {
-		return "Your Entertainment, SIMPLIFIED !";
-	}
-
 	@ApiOperation(value = "Mock Find", hidden = true)
 	@RequestMapping(value = { "mock/find/{id}" }, method = { RequestMethod.GET })
 	public CompletableFuture<MockData> findById(@PathVariable("id") UUID id) {
