@@ -29,13 +29,8 @@ public class MainBannerController {
 	@Autowired
 	SortDataService sortDataService;
 
-	@GetMapping({"/"})
-	public String getHealth() {
-		return "Your Entertainment, SIMPLIFIED !";
-	}
-
 	@ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
-	@RequestMapping(value = { "featuredBanner" }, method = { RequestMethod.GET }, produces = { "application/json" })
+	@GetMapping(value = "/featuredBanner", produces = "application/json")
 	public CompletableFuture<List<MainBannerContent>> getMainBanner() {
 		return this.mainBannerServiceApi.getMainBannerData();
 	}
