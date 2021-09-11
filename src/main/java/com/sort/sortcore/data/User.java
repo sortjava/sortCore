@@ -29,6 +29,7 @@ public class User {
     @Size(max = 120)
     private String password;
     private boolean isEnabled;
+    private String resetToken;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
@@ -39,11 +40,12 @@ public class User {
     public User() {
     }
 
-    public User(String username, String email, String password, boolean isEnabled) {
+    public User(String username, String email, String password, boolean isEnabled, String resetToken) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.isEnabled = isEnabled;
+        this.resetToken = resetToken;
     }
 
     public Long getId() {
@@ -84,6 +86,14 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
     }
 
     public Set<Role> getRoles() {
