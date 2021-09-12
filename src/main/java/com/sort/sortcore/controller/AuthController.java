@@ -1,16 +1,12 @@
 package com.sort.sortcore.controller;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
 import com.sort.sortcore.data.*;
 import com.sort.sortcore.repository.ConfirmationTokenRepository;
+import com.sort.sortcore.repository.RoleRepository;
+import com.sort.sortcore.repository.UserRepository;
+import com.sort.sortcore.security.jwt.JwtUtils;
 import com.sort.sortcore.service.EmailSenderService;
+import com.sort.sortcore.service.impl.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,14 +15,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import org.springframework.web.bind.annotation.*;
-
-import com.sort.sortcore.repository.RoleRepository;
-import com.sort.sortcore.repository.UserRepository;
-import com.sort.sortcore.security.jwt.JwtUtils;
-import com.sort.sortcore.service.impl.UserDetailsImpl;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -107,8 +104,12 @@ public class AuthController {
                 }
             });
         }
-
         user.setRoles(roles);
+
+        Profile profile = new Profile();
+        profile.setEmail(user.getEmail());
+        user.setProfile(profile);
+
         userRepository.save(user);
 
         ConfirmationToken confirmationToken = new ConfirmationToken(user);
@@ -121,23 +122,22 @@ public class AuthController {
         mailMessage.setTo(user.getEmail());
         mailMessage.setSubject("Complete your SORT registration!");
         mailMessage.setFrom("sortedjava@gmail.com");
-        mailMessage.setText("To confirm your account, please click here : "+baseUrl+"/api/auth/confirm-account?token="+confirmationToken.getConfirmationToken());
+        mailMessage.setText("To confirm your account, please click here : " + baseUrl + "/api/auth/confirm-account?token=" + confirmationToken.getConfirmationToken());
 
         emailSenderService.sendEmail(mailMessage);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!. Please check your email to verify your account."));
     }
 
-    @RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<?> confirmUserAccount(@RequestParam("token")String confirmationToken) {
+    @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<?> confirmUserAccount(@RequestParam("token") String confirmationToken) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
 
-        if(token != null) {
+        if (token != null) {
             User user = userRepository.findByEmail(token.getUser().getEmail()).get();
             user.setEnabled(true);
             userRepository.save(user);
-        }
-        else {
+        } else {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email link is invalid or broken!"));
         }
         return ResponseEntity.ok(new MessageResponse("Congratulations! Your account has been activated and email is verified."));
@@ -169,22 +169,20 @@ public class AuthController {
         }
     }
 
-    @RequestMapping(value="/change-password", method= {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<?> addUserToken(@RequestParam("token")String confirmationToken, @RequestParam("reqId")String password) {
+    @RequestMapping(value = "/change-password", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<?> addUserToken(@RequestParam("token") String confirmationToken, @RequestParam("reqId") String password) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         User user = userRepository.findByEmail(token.getUser().getEmail()).get();
         user.setResetToken(confirmationToken);
         userRepository.save(user);
 
-        if(!user.isEnabled()){
+        if (!user.isEnabled()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Please enable the user using signup email sent already before resetting password!"));
-        }
-        else if(user != null) {
+        } else if (user != null) {
             user.setPassword(password);
             user.setResetToken(null);
             userRepository.save(user);
-        }
-        else {
+        } else {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Reset Email link is invalid or broken!"));
         }
         return ResponseEntity.ok(new MessageResponse("Congratulations! Your password has been reset."));

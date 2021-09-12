@@ -1,14 +1,12 @@
 package com.sort.sortcore.service.impl;
 
+import com.sort.sortcore.data.User;
+import com.sort.sortcore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.sort.sortcore.data.User;
-import com.sort.sortcore.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -17,10 +15,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + email));
-
+    public UserDetails loadUserByUsername(String email) throws RuntimeException {
+        User user = userRepository.findByEmail(email).get();
         return UserDetailsImpl.build(user);
     }
 /*
@@ -32,5 +28,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return UserDetailsImpl.build(user);
     }*/
-
 }
