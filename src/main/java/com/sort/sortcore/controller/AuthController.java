@@ -15,7 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -129,7 +131,7 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!. Please check your email to verify your account."));
     }
 
-    @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
+    /*@RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> confirmUserAccount(@RequestParam("token") String confirmationToken) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
 
@@ -141,6 +143,20 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email link is invalid or broken!"));
         }
         return ResponseEntity.ok(new MessageResponse("Congratulations! Your account has been activated and email is verified."));
+    }*/
+
+    @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView confirmUserAccount(Model model, @RequestParam("token") String confirmationToken) {
+        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+
+        if (token != null) {
+            User user = userRepository.findByEmail(token.getUser().getEmail()).get();
+            user.setEnabled(true);
+            userRepository.save(user);
+        } else {
+            return new ModelAndView("SignUpErrorPage");
+        }
+        return new ModelAndView("SignUpConfirmation");
     }
 
     @PostMapping("/reset-password")
@@ -169,7 +185,7 @@ public class AuthController {
         }
     }
 
-    @RequestMapping(value = "/change-password", method = {RequestMethod.GET, RequestMethod.POST})
+    /*@RequestMapping(value = "/change-password", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> addUserToken(@RequestParam("token") String confirmationToken, @RequestParam("reqId") String password) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         User user = userRepository.findByEmail(token.getUser().getEmail()).get();
@@ -186,5 +202,24 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Reset Email link is invalid or broken!"));
         }
         return ResponseEntity.ok(new MessageResponse("Congratulations! Your password has been reset."));
+    }*/
+
+    @RequestMapping(value = "/change-password", method = {RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView addUserToken(Model model, @RequestParam("token") String confirmationToken, @RequestParam("reqId") String password) {
+        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+        User user = userRepository.findByEmail(token.getUser().getEmail()).get();
+        user.setResetToken(confirmationToken);
+        userRepository.save(user);
+
+        if (!user.isEnabled()) {
+            return new ModelAndView("ResetErrorPage");
+        } else if (user != null) {
+            user.setPassword(password);
+            user.setResetToken(null);
+            userRepository.save(user);
+        } else {
+            return new ModelAndView("SignUpErrorPage");
+        }
+        return new ModelAndView("ResetConfirmation");
     }
 }
