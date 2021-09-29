@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>SORT - Reset Confirmation</title>
-    <link href="../static/css/common.css" rel="stylesheet">
+    <link href="../static/api/auth/css/common.css" th:href="@{css/common.css}" rel="stylesheet" media="screen">
 </head>
 <body>
-<script src="../static/js/common.js"></script>
+<!-- <script src="../static/js/common.js"></script> -->
 <div class="outer-div">
     <div class="inner-div">
         <h3>Your password has been successfully updated!</h3>
         <h3>Please login now on SORT with your email ID and new password.</h3>
     </div>
     <div>
-        <img src="../static/images/sort_logo.png" alt="SORT"/>
+        <img src="../static/api/auth/img/sort_logo.png" alt="SORT" th:src="@{img/sort_logo.png}"/>
     </div>
 </div>
 </body>

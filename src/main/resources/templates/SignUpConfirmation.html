@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>SORT - SignUp Confirmation</title>
-    <link href="../static/css/common.css" rel="stylesheet">
+    <link href="../static/api/auth/css/common.css" th:href="@{css/common.css}" rel="stylesheet" media="screen">
 </head>
 <body>
-<script src="../static/js/common.js"></script>
+<!-- <script src="../static/js/common.js"></script> -->
 <div class="outer-div">
     <div class="inner-div">
         <h3>Welcome to SORT!</h3>
@@ -14,7 +14,7 @@
         <h3>You can now login to SORT with your Email ID and Password.</h3>
     </div>
     <div>
-        <img src="../static/images/sort_logo.png" alt="SORT"/>
+        <img src="../static/api/auth/img/sort_logo.png" alt="SORT" th:src="@{img/sort_logo.png}"/>
     </div>
 </div>
 </body>
