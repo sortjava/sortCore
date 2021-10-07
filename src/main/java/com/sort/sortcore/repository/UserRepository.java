@@ -1,17 +1,23 @@
 package com.sort.sortcore.repository;
 
-import java.util.Optional;
-
+import com.sort.sortcore.data.Provider;
+import com.sort.sortcore.data.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sort.sortcore.data.User;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
+
     Boolean existsByUsername(String username);
-    Boolean existsByEmail(String email);
-    Optional<User> findByEmail (String email);
-    Optional<User> findByResetToken (String Token);
+
+    Boolean existsByEmailAndProvider(String email, Provider provider);
+
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByEmailAndProvider(String email, Provider provider);
+
+    Optional<User> findByResetToken(String Token);
 }

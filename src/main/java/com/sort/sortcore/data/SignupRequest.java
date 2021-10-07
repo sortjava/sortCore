@@ -1,8 +1,8 @@
 package com.sort.sortcore.data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Set;
-
-import javax.validation.constraints.*;
 
 public class SignupRequest {
     @NotBlank
@@ -10,8 +10,10 @@ public class SignupRequest {
     private String username;
 
     @NotBlank
+    private String provider;
+
+    @NotBlank
     @Size(max = 50)
-    @Email
     private String email;
 
     private Set<String> role;
@@ -26,6 +28,14 @@ public class SignupRequest {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public String getEmail() {

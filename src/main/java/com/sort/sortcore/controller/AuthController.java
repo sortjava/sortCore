@@ -60,27 +60,32 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         String jwt = jwtUtils.generateJwtToken(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), userDetails.getProvider().toString(), roles));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        /*if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+        }*/
+
+        String tempEmail = signUpRequest.getEmail();
+        if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("GOOGLE")) {
+            tempEmail = tempEmail + "@gmail.com";
+        } else if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("FACEBOOK")) {
+            tempEmail = tempEmail + "@facebook.com";
+        } else {
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByEmailAndProvider(tempEmail, Provider.valueOf(signUpRequest.getProvider().toUpperCase()))) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
         // Create new user's account
-        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()), false, null);
-
+        User user = new User(signUpRequest.getUsername(), tempEmail, encoder.encode(signUpRequest.getPassword()), false, null, Provider.valueOf(signUpRequest.getProvider().toUpperCase()));
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
 
@@ -110,25 +115,30 @@ public class AuthController {
 
         Profile profile = new Profile();
         profile.setEmail(user.getEmail());
+        profile.setProvider(Provider.valueOf(signUpRequest.getProvider()));
         user.setProfile(profile);
 
-        userRepository.save(user);
-
-        ConfirmationToken confirmationToken = new ConfirmationToken(user);
-
-        confirmationTokenRepository.save(confirmationToken);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(servletRequest).replacePath(null).build().toUriString();
-
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setSubject("Complete your SORT registration!");
-        mailMessage.setFrom("sortedjava@gmail.com");
-        mailMessage.setText("To confirm your account, please click here : " + baseUrl + "/api/auth/confirm-account?token=" + confirmationToken.getConfirmationToken());
-
-        emailSenderService.sendEmail(mailMessage);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!. Please check your email to verify your account."));
+        if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("GOOGLE") || signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("FACEBOOK")) {
+            user.setEnabled(true);
+            userRepository.save(user);
+            LoginRequest loginRequest1 = new LoginRequest();
+            loginRequest1.setEmail(user.getEmail());
+            loginRequest1.setProvider(signUpRequest.getProvider());
+            loginRequest1.setPassword(signUpRequest.getPassword());
+            return this.authenticateUser(loginRequest1);
+        } else {
+            userRepository.save(user);
+            ConfirmationToken confirmationToken = new ConfirmationToken(user);
+            confirmationTokenRepository.save(confirmationToken);
+            String baseUrl = ServletUriComponentsBuilder.fromRequestUri(servletRequest).replacePath(null).build().toUriString();
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(user.getEmail());
+            mailMessage.setSubject("Complete your SORT registration!");
+            mailMessage.setFrom("sortedjava@gmail.com");
+            mailMessage.setText("To confirm your account, please click here : " + baseUrl + "/api/auth/confirm-account?token=" + confirmationToken.getConfirmationToken());
+            emailSenderService.sendEmail(mailMessage);
+            return ResponseEntity.ok(new MessageResponse("User registered successfully!. Please check your email to verify your account."));
+        }
     }
 
     /*@RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
@@ -147,13 +157,16 @@ public class AuthController {
 
     @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
     public ModelAndView confirmUserAccount(Model model, @RequestParam("token") String confirmationToken) {
-        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
-
-        if (token != null) {
-            User user = userRepository.findByEmail(token.getUser().getEmail()).get();
-            user.setEnabled(true);
-            userRepository.save(user);
-        } else {
+        try {
+            ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+            if (token != null) {
+                User user = userRepository.findByEmailAndProvider(token.getUser().getEmail(), token.getUser().getProvider()).get();
+                user.setEnabled(true);
+                userRepository.save(user);
+            } else {
+                return new ModelAndView("SignUpErrorPage");
+            }
+        } catch (Exception e) {
             return new ModelAndView("SignUpErrorPage");
         }
         return new ModelAndView("SignUpConfirmation");
@@ -161,10 +174,10 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> sendResetEmail(@Valid @RequestBody ResetRequest resetRequest) {
-        if (!userRepository.existsByEmail(resetRequest.getEmail())) {
+        if (!userRepository.existsByEmailAndProvider(resetRequest.getEmail(), Provider.valueOf(resetRequest.getProvider().toUpperCase()))) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: User does not exist!"));
         } else {
-            User user1 = userRepository.findByEmail(resetRequest.getEmail()).get();
+            User user1 = userRepository.findByEmailAndProvider(resetRequest.getEmail(), Provider.valueOf(resetRequest.getProvider().toUpperCase())).get();
             ConfirmationToken confirmationToken1 = new ConfirmationToken(user1);
             confirmationTokenRepository.save(confirmationToken1);
 
@@ -207,7 +220,7 @@ public class AuthController {
     @RequestMapping(value = "/change-password", method = {RequestMethod.GET, RequestMethod.POST})
     public ModelAndView addUserToken(Model model, @RequestParam("token") String confirmationToken, @RequestParam("reqId") String password) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
-        User user = userRepository.findByEmail(token.getUser().getEmail()).get();
+        User user = userRepository.findByEmailAndProvider(token.getUser().getEmail(), token.getUser().getProvider()).get();
         user.setResetToken(confirmationToken);
         userRepository.save(user);
 

@@ -19,9 +19,9 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        if ("User is disabled" == authException.getMessage().toString()) {
+        if (authException.getMessage().toString().equalsIgnoreCase("User is disabled")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Your account is not activated yet. Kindly check your email and confirm your registration by clicking on account verification link.");
-        } else if ("Bad credentials" == authException.getMessage().toString()) {
+        } else if (authException.getMessage().toString().equalsIgnoreCase("Bad credentials")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: User email or Password is incorrect");
         } else {
             logger.error("Unauthorized error: {}", authException.getMessage());

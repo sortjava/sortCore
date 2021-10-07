@@ -1,10 +1,7 @@
 package com.sort.sortcore.controller;
 
 import com.sort.sortcore.api.MainBannerServiceApi;
-import com.sort.sortcore.data.MainBannerContent;
-import com.sort.sortcore.data.Profile;
-import com.sort.sortcore.data.SortedData;
-import com.sort.sortcore.data.TxnContent;
+import com.sort.sortcore.data.*;
 import com.sort.sortcore.repository.ProfileRepository;
 import com.sort.sortcore.service.SortDataService;
 import io.swagger.annotations.ApiOperation;
@@ -98,21 +95,21 @@ public class MainBannerController {
     }
 
     @PostMapping(value = "/updateProfile", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Profile> saveProdileData(@RequestBody Profile reqProfile) {
-        Profile profile = profileRepository.findByEmail(reqProfile.getEmail());
+    public ResponseEntity<Profile> saveProfileData(@RequestBody ProfileRequest profileRequest) {
+        Profile profile = profileRepository.findByEmailAndProvider(profileRequest.getEmail(), Provider.valueOf(profileRequest.getProvider().toUpperCase()));
 
-        profile.setFullName(reqProfile.getFullName());
-        profile.setPhone(reqProfile.getPhone());
-        profile.setGender(reqProfile.getGender());
-        profile.setDateOfBirth(reqProfile.getDateOfBirth());
+        profile.setFullName(profileRequest.getFullName());
+        profile.setPhone(profileRequest.getPhone());
+        profile.setGender(profileRequest.getGender());
+        profile.setDateOfBirth(profileRequest.getDateOfBirth());
         profile.setLastModified(LocalDateTime.now());
         profileRepository.save(profile);
 
         return new ResponseEntity<>(profile, HttpStatus.CREATED);
     }
 
-    @GetMapping({"/getProfileByEmail/{emailId}"})
-    public ResponseEntity<Profile> getProfileByEmail(@PathVariable String emailId) {
-        return new ResponseEntity<>(profileRepository.findByEmail(emailId), HttpStatus.OK);
+    @GetMapping({"/getProfileByEmail/{emailId}/{provider}"})
+    public ResponseEntity<Profile> getProfileByEmail(@PathVariable String emailId, @PathVariable String provider) {
+        return new ResponseEntity<>(profileRepository.findByEmailAndProvider(emailId, Provider.valueOf(provider.toUpperCase())), HttpStatus.OK);
     }
 }

@@ -11,6 +11,9 @@ public class LoginRequest {
     @NotBlank
     private String password;
 
+    @NotBlank
+    private String provider;
+
     public String getUsername() {
         return username;
     }
@@ -33,5 +36,13 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }

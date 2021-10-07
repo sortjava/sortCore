@@ -1,5 +1,8 @@
 package com.sort.sortcore.security;
 
+import com.sort.sortcore.security.jwt.AuthEntryPointJwt;
+import com.sort.sortcore.security.jwt.AuthTokenFilter;
+import com.sort.sortcore.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.sort.sortcore.security.jwt.AuthEntryPointJwt;
-import com.sort.sortcore.security.jwt.AuthTokenFilter;
-import com.sort.sortcore.service.impl.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -37,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     String[] whitelistResources = new String[]{
-            "/api/auth/**","/h2-console/**","/static/**","/templates/**","/css/**","/js/**"
+            "/", "/login", "/api/auth/**", "/h2-console/**", "/resources/**", "/static/**", "/templates/**", "/api/**", "/css/**", "/js/**"
     };
 
     @Override
@@ -68,4 +68,34 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
+
+    /*@Autowired
+    private CustomOAuth2UserService oauth2UserService;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable()
+                //.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .authorizeRequests().antMatchers(whitelistResources).permitAll()
+                .anyRequest().authenticated().and()
+                .formLogin().permitAll().loginPage("/login")
+                .usernameParameter("email").passwordParameter("pass")
+                .defaultSuccessUrl("/").and().oauth2Login().loginPage("/login").userInfoEndpoint()
+                .userService(oauth2UserService).and()
+                .successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                                        Authentication authentication) throws IOException, ServletException {
+                        CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
+                        //authController.processOAuthPostLogin(oauthUser.getEmail(), oauthUser.getSocialSiteName());
+                        userDetailsService.processOAuthPostLogin(oauthUser.getEmail(), oauthUser.getSocialSiteName());
+                        response.sendRedirect("/");
+                    }
+                })
+                .and().logout().logoutSuccessUrl("/").permitAll().and()
+                .exceptionHandling().accessDeniedPage("/403");
+
+        http.headers().frameOptions().disable();
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    }*/
 }
