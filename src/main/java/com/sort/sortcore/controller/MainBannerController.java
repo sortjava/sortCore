@@ -1,9 +1,11 @@
 package com.sort.sortcore.controller;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.sort.sortcore.api.MainBannerServiceApi;
 import com.sort.sortcore.data.*;
 import com.sort.sortcore.repository.ProfileRepository;
 import com.sort.sortcore.service.SortDataService;
+import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,9 @@ public class MainBannerController {
 
     @Autowired
     ProfileRepository profileRepository;
+
+    @Autowired
+    DocumentManagementServiceImpl documentManagementService;
 
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
@@ -111,5 +116,21 @@ public class MainBannerController {
     @GetMapping({"/getProfileByEmail/{emailId}/{provider}"})
     public ResponseEntity<Profile> getProfileByEmail(@PathVariable String emailId, @PathVariable String provider) {
         return new ResponseEntity<>(profileRepository.findByEmailAndProvider(emailId, Provider.valueOf(provider.toUpperCase())), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/genreList/{itemType}", produces = "application/json")
+    public ResponseEntity<?> downloadFile(@PathVariable String itemType) {
+        String json = "";
+        try {
+            /*File resource = new ClassPathResource("/static/json_10-13-2021_12-34-27.json").getFile();
+            File resource1 = new File()
+            json = new String(Files.readAllBytes(resource.toPath()));*/
+
+            S3Object data = documentManagementService.downloadFileFromS3bucket(itemType + ".json", "myjsonbucket");
+            json = new String(data.getObjectContent().readAllBytes());
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return ResponseEntity.ok(json);
     }
 }
