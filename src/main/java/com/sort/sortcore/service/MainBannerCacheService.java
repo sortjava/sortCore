@@ -31,6 +31,10 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     private final CacheManager cacheManager;
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final Map<String, Object> QUERY_MAP = Map.of("aud_priority", "1", "aud_active", "1");
+    private static final Map<String, Object> MAIN_MOVIE_QUERY_MAP = Map.of("aud_priority", "1", "aud_active", "1", "txn_type", "movie");
+    private static final Map<String, Object> MAIN_EVENT_QUERY_MAP = Map.of("aud_priority", "2", "aud_active", "1", "txn_type", "event");
+    private static final Map<String, Object> RECOMMENDED_MOVIE_QUERY_MAP = Map.of("aud_priority", "1", "txn_type", "movie");
+    private static final Map<String, Object> RECOMMENDED_EVENT_QUERY_MAP = Map.of("aud_priority", "1", "txn_type", "event");
     private static final String CACHE_NAME = "main-banner";
     private static final String CACHE_KEY = "DATA";
     private final Counter cacheRefreshCounter;
@@ -92,6 +96,24 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     }
 
     @Override
+    public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType) {
+        if ("movie".equalsIgnoreCase(txnType)) {
+            return this.getListMainBannerContent(MAIN_MOVIE_QUERY_MAP);
+        } else {
+            return this.getListMainBannerContent(MAIN_EVENT_QUERY_MAP);
+        }
+    }
+
+    @Override
+    public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType) {
+        if ("movie".equalsIgnoreCase(txnType)) {
+            return this.getListMainBannerContent(RECOMMENDED_MOVIE_QUERY_MAP);
+        } else {
+            return this.getListMainBannerContent(RECOMMENDED_EVENT_QUERY_MAP);
+        }
+    }
+
+    @Override
     public CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType) {
         return this.getListMainBannerContent(Map.of("aud_priority", "1", "aud_active", "1", "txn_type", txnType));
     }
@@ -106,7 +128,7 @@ public class MainBannerCacheService implements MainBannerServiceApi {
         List<CompletableFuture<MainBannerContent>> completableFuturesOfMainBannerContent = txnContents.stream()
                 .map(this::getMainBannerContent).map((mbData) -> {
                     return this.callOmdbService(mbData).thenApply((omdbData) -> {
-                        return mbData.toBuilder().imageUrl(omdbData.map(OmdbData::getPoster).orElse("N/A")).build();
+                        return mbData;
                     });
                 }).collect(Collectors.toList());
         return this.allOf(completableFuturesOfMainBannerContent);
@@ -114,7 +136,7 @@ public class MainBannerCacheService implements MainBannerServiceApi {
 
     private CompletableFuture<Optional<OmdbData>> callOmdbService(MainBannerContent mbData) {
         return this.omdbDataService
-                .omdbData(OmdbRequest.builder().title(mbData.getTitle()).year(mbData.getYear()).build());
+                .omdbData(OmdbRequest.builder().title(mbData.getTxn_title()).year(mbData.getYear()).build());
     }
 
     public <T> CompletableFuture<List<T>> allOf(List<CompletableFuture<T>> futuresList) {
@@ -126,7 +148,7 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     }
 
     private MainBannerContent getMainBannerContent(TxnContent tx) {
-        return MainBannerContent.builder().id(tx.getTxnId()).type(tx.getTxnType()).title(tx.getTxnTitle())
-                .Url(tx.getTxnUrl()).year(tx.getTxnYear()).genre(tx.getTxnGenres()).build();
+        return MainBannerContent.builder().txn_id(tx.getTxnId()).txn_title(tx.getTxnTitle()).txn_banner_image(tx.getTxnBannerImage())
+                .txn_vertical_image(tx.getTxnVerticalImage()).build();
     }
 }

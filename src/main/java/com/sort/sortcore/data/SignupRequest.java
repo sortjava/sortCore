@@ -6,20 +6,20 @@ import java.util.Set;
 
 public class SignupRequest {
     @NotBlank
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 60)
     private String username;
 
     @NotBlank
     private String provider;
 
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 60)
     private String email;
 
     private Set<String> role;
 
     @NotBlank
-    @Size(min = 6, max = 40)
+    @Size(min = 4, max = 120)
     private String password;
 
     public String getUsername() {

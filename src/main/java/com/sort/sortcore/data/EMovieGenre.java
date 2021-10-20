@@ -1,0 +1,28 @@
+package com.sort.sortcore.data;
+
+public enum EMovieGenre {
+    BOLLYWOOD,
+    HOLLYWOOD,
+    INTERNATIONAL,
+    AWARD_WINNING,
+    ACTION,
+    ADVENTURE,
+    FANTASY,
+    SCI_FI,
+    CRIME,
+    COMEDIES,
+    ROMANCE,
+    DRAMAS,
+    THRILLER,
+    SUSPENSE,
+    SPORTS,
+    HORROR,
+    MYSTERY,
+    STAND_UP_COMEDY,
+    CHILDRENANDFAMILY,
+    DOCUMENTARY,
+    ANIME,
+    KIDS,
+    TEEN,
+    DOCUSERIESORDOCUDRAMA
+}

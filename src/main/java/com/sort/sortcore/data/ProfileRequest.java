@@ -6,10 +6,10 @@ import javax.validation.constraints.Size;
 public class ProfileRequest {
     String fullName;
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 60)
     String email;
     String phone;
-    @Size(max = 12)
+    @Size(max = 20)
     String gender;
     String dateOfBirth;
     String provider;

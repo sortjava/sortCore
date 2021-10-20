@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.sort.sortcore.api.MainBannerServiceApi;
 import com.sort.sortcore.data.*;
 import com.sort.sortcore.repository.ProfileRepository;
+import com.sort.sortcore.repository.UserRepository;
 import com.sort.sortcore.service.SortDataService;
 import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +36,9 @@ public class MainBannerController {
     @Autowired
     DocumentManagementServiceImpl documentManagementService;
 
+    @Autowired
+    UserRepository userRepository;
+
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBanner() {
@@ -51,6 +55,16 @@ public class MainBannerController {
 		}
 		return listCompletableFuture;
     }*/
+    
+    @GetMapping(value = "/mainBanner/{txnType}", produces = "application/json")
+    public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(@PathVariable String txnType) {
+        return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType);
+    }
+
+    @GetMapping({"/recommendedList/{txnType}"})
+    public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(@PathVariable String txnType) {
+        return this.mainBannerServiceApi.getRecommendedBannerMovieEventData(txnType);
+    }
 
     @GetMapping({"/list/{txnType}"})
     public CompletableFuture<List<MainBannerContent>> getTxnTypeList(@PathVariable String txnType) {
@@ -133,4 +147,24 @@ public class MainBannerController {
         }
         return ResponseEntity.ok(json);
     }
+
+    /*@GetMapping(value = "/addPreferences", produces = "application/json")
+    public ResponseEntity<?> addPreferences(@RequestBody PreferenceRequest preferenceRequest) {
+        User user = userRepository.findByEmailAndProvider(preferenceRequest.getEmail(), Provider.valueOf(preferenceRequest.getProvider().toUpperCase())).get();
+
+        Set<String> movieGenres = preferenceRequest.getMovieGenres();
+        Set<String> movieLanguages = preferenceRequest.getMovieLanguages();
+        Set<String> eventGenres = preferenceRequest.getEventGenre();
+
+        Set<MovieGenre> movieGenresSet = new HashSet<>();
+        Set<MovieLanguage> movieLanguageSet = new HashSet<>();
+        Set<EventGenre> eventGenresSet = new HashSet<>();
+
+        movieGenres.forEach(movieG -> {
+            //   MovieGenre movieGenre = mo.findByName(EMovieGenre.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            // movieGenresSet.add(userRole);
+        });
+
+        return ResponseEntity.ok(json);
+    }*/
 }

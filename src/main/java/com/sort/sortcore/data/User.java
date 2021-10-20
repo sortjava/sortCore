@@ -17,10 +17,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 60)
     private String username;
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 60)
     private String email;
     @NotBlank
     @Size(max = 120)

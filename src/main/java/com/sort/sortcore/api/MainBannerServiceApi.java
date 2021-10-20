@@ -9,6 +9,10 @@ import java.util.concurrent.CompletableFuture;
 public interface MainBannerServiceApi {
     CompletableFuture<List<MainBannerContent>> getMainBannerData();
 
+    CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType);
+
+    CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType);
+
     CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType);
 
     List<TxnContent> getTxnDetailsById(String txnType, String id);
