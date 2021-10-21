@@ -31,6 +31,7 @@ public class Profile {
     String gender;
     String dateOfBirth;
     Provider provider;
+    String avatarImage;
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime dateCreated;

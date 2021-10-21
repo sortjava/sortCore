@@ -41,6 +41,24 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     Profile profile;
 
+  /*  @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_moviegenres",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "moviegenres_id"))
+    private Set<MovieGenre> movieGenres = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_eventgenres",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "eventgenres_id"))
+    private Set<EventGenre> eventGenres = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_movielanguage",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "movielanguage_id"))
+    private Set<MovieLanguage> movieLanguage = new HashSet<>();*/
+
     public User() {
     }
 

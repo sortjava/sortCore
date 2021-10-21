@@ -73,14 +73,14 @@ public class AuthController {
         }*/
 
         String tempEmail = signUpRequest.getEmail();
-        if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("GOOGLE")) {
+        if ("GOOGLE".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) {
             tempEmail = tempEmail + "@gmail.com";
-        } else if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("FACEBOOK")) {
+        } else if ("FACEBOOK".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) {
             tempEmail = tempEmail + "@facebook.com";
         } else {
         }
 
-        if (userRepository.existsByEmailAndProvider(tempEmail, Provider.valueOf(signUpRequest.getProvider().toUpperCase()))) {
+        if (("LOCAL".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) && (userRepository.existsByEmailAndProvider(tempEmail, Provider.valueOf(signUpRequest.getProvider().toUpperCase())))) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
@@ -119,8 +119,10 @@ public class AuthController {
         user.setProfile(profile);
 
         if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("GOOGLE") || signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("FACEBOOK")) {
-            user.setEnabled(true);
-            userRepository.save(user);
+            if (!(userRepository.existsByEmailAndProvider(tempEmail, Provider.valueOf(signUpRequest.getProvider().toUpperCase())))) {
+                user.setEnabled(true);
+                userRepository.save(user);
+            }
             LoginRequest loginRequest1 = new LoginRequest();
             loginRequest1.setEmail(user.getEmail());
             loginRequest1.setProvider(signUpRequest.getProvider());

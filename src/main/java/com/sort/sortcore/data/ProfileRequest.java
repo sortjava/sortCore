@@ -13,6 +13,7 @@ public class ProfileRequest {
     String gender;
     String dateOfBirth;
     String provider;
+    String avatarImage;
 
     public String getFullName() {
         return fullName;
@@ -60,5 +61,13 @@ public class ProfileRequest {
 
     public void setProvider(String provider) {
         this.provider = provider;
+    }
+
+    public String getAvatarImage() {
+        return avatarImage;
+    }
+
+    public void setAvatarImage(String avatarImage) {
+        this.avatarImage = avatarImage;
     }
 }

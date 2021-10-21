@@ -5,6 +5,7 @@ import com.sort.sortcore.api.MainBannerServiceApi;
 import com.sort.sortcore.data.*;
 import com.sort.sortcore.repository.ProfileRepository;
 import com.sort.sortcore.repository.UserRepository;
+import com.sort.sortcore.security.jwt.JwtUtils;
 import com.sort.sortcore.service.SortDataService;
 import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +40,9 @@ public class MainBannerController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    JwtUtils jwtUtils;
+
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBanner() {
@@ -55,7 +59,7 @@ public class MainBannerController {
 		}
 		return listCompletableFuture;
     }*/
-    
+
     @GetMapping(value = "/mainBanner/{txnType}", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(@PathVariable String txnType) {
         return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType);
@@ -121,15 +125,20 @@ public class MainBannerController {
         profile.setPhone(profileRequest.getPhone());
         profile.setGender(profileRequest.getGender());
         profile.setDateOfBirth(profileRequest.getDateOfBirth());
+        profile.setAvatarImage(profileRequest.getAvatarImage());
         profile.setLastModified(LocalDateTime.now());
+
         profileRepository.save(profile);
 
         return new ResponseEntity<>(profile, HttpStatus.CREATED);
     }
 
-    @GetMapping({"/getProfileByEmail/{emailId}/{provider}"})
-    public ResponseEntity<Profile> getProfileByEmail(@PathVariable String emailId, @PathVariable String provider) {
-        return new ResponseEntity<>(profileRepository.findByEmailAndProvider(emailId, Provider.valueOf(provider.toUpperCase())), HttpStatus.OK);
+    @GetMapping({"/getProfileByEmail"})
+    public ResponseEntity<Profile> getProfileByEmail(@RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        return new ResponseEntity<>(profileRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())), HttpStatus.OK);
     }
 
     @GetMapping(value = "/genreList/{itemType}", produces = "application/json")
@@ -148,7 +157,7 @@ public class MainBannerController {
         return ResponseEntity.ok(json);
     }
 
-    /*@GetMapping(value = "/addPreferences", produces = "application/json")
+   /* @PostMapping(value = "/addPreferences", produces = "application/json", consumes = "application/json")
     public ResponseEntity<?> addPreferences(@RequestBody PreferenceRequest preferenceRequest) {
         User user = userRepository.findByEmailAndProvider(preferenceRequest.getEmail(), Provider.valueOf(preferenceRequest.getProvider().toUpperCase())).get();
 

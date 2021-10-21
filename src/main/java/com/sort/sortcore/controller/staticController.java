@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/static")
@@ -75,5 +78,22 @@ public class staticController {
                 "   }\n" +
                 "]";
         return json;
+    }
+
+    @GetMapping(value = "/profileAvatar")
+    public List<String> getProfileAvatarImages() {
+        List<String> profAvtr = new ArrayList<>();
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/male.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/female.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero1.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero2.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero3.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero4.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero5.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero6.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero7.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/superhero8.png");
+        profAvtr.add("https://sortprofileavatar.s3.us-east-2.amazonaws.com/lgbt.png");
+        return profAvtr;
     }
 }

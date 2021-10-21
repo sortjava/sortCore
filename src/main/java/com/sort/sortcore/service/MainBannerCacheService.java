@@ -32,9 +32,9 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final Map<String, Object> QUERY_MAP = Map.of("aud_priority", "1", "aud_active", "1");
     private static final Map<String, Object> MAIN_MOVIE_QUERY_MAP = Map.of("aud_priority", "1", "aud_active", "1", "txn_type", "movie");
-    private static final Map<String, Object> MAIN_EVENT_QUERY_MAP = Map.of("aud_priority", "2", "aud_active", "1", "txn_type", "event");
+    private static final Map<String, Object> MAIN_EVENT_QUERY_MAP = Map.of("aud_priority", "1", "aud_active", "1", "txn_type", "event");
     private static final Map<String, Object> RECOMMENDED_MOVIE_QUERY_MAP = Map.of("aud_priority", "1", "txn_type", "movie");
-    private static final Map<String, Object> RECOMMENDED_EVENT_QUERY_MAP = Map.of("aud_priority", "1", "txn_type", "event");
+    private static final Map<String, Object> RECOMMENDED_EVENT_QUERY_MAP = Map.of("txn_genres", "Workshops", "txn_type", "event");
     private static final String CACHE_NAME = "main-banner";
     private static final String CACHE_KEY = "DATA";
     private final Counter cacheRefreshCounter;
