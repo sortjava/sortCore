@@ -138,6 +138,9 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+            tempProvider = "LOCAL";
+        }
         return new ResponseEntity<>(profileRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())), HttpStatus.OK);
     }
 
