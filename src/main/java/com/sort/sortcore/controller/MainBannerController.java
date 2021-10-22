@@ -118,9 +118,11 @@ public class MainBannerController {
     }
 
     @PostMapping(value = "/updateProfile", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Profile> saveProfileData(@RequestBody ProfileRequest profileRequest) {
-        Profile profile = profileRepository.findByEmailAndProvider(profileRequest.getEmail(), Provider.valueOf(profileRequest.getProvider().toUpperCase()));
+    public ResponseEntity<Profile> saveProfileData(@RequestBody ProfileRequest profileRequest, @RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        Profile profile = profileRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(profileRequest.getProvider().toUpperCase()));
 
+        profile.setDisplayEmail(profileRequest.getDisplayEmail());
         profile.setFullName(profileRequest.getFullName());
         profile.setPhone(profileRequest.getPhone());
         profile.setGender(profileRequest.getGender());

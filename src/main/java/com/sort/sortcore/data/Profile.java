@@ -24,10 +24,12 @@ public class Profile {
     private Integer id;
     String fullName;
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 60)
     String email;
+    @Size(max = 60)
+    String displayEmail;
     String phone;
-    @Size(max = 12)
+    @Size(max = 15)
     String gender;
     String dateOfBirth;
     Provider provider;

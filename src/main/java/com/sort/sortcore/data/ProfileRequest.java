@@ -7,7 +7,7 @@ public class ProfileRequest {
     String fullName;
     @NotBlank
     @Size(max = 60)
-    String email;
+    String displayEmail;
     String phone;
     @Size(max = 20)
     String gender;
@@ -23,12 +23,12 @@ public class ProfileRequest {
         this.fullName = fullName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getDisplayEmail() {
+        return displayEmail;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setDisplayEmail(String displayEmail) {
+        this.displayEmail = displayEmail;
     }
 
     public String getPhone() {
