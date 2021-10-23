@@ -2,7 +2,6 @@ package com.sort.sortcore.data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
 import java.util.Set;
 
 public class PreferenceRequest {
@@ -10,9 +9,9 @@ public class PreferenceRequest {
     @Size(max = 60)
     private String email;
     private String provider;
-    private Set<String> movieGenres = new HashSet<>();
-    private Set<String> movieLanguages = new HashSet<>();
-    private Set<String> eventGenre = new HashSet<>();
+    private Set<String> movieGenres;
+    private Set<String> movieLanguages;
+    private Set<String> eventGenre;
 
     public String getEmail() {
         return email;

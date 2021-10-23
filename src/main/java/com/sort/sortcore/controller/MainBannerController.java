@@ -3,8 +3,7 @@ package com.sort.sortcore.controller;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sort.sortcore.api.MainBannerServiceApi;
 import com.sort.sortcore.data.*;
-import com.sort.sortcore.repository.ProfileRepository;
-import com.sort.sortcore.repository.UserRepository;
+import com.sort.sortcore.repository.*;
 import com.sort.sortcore.security.jwt.JwtUtils;
 import com.sort.sortcore.service.SortDataService;
 import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
@@ -17,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -39,6 +40,15 @@ public class MainBannerController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    MovieGenreRepository movieGenreRepository;
+
+    @Autowired
+    MovieLanguageRepository movieLanguageRepository;
+
+    @Autowired
+    EventGenreRepository eventGenreRepository;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -77,7 +87,11 @@ public class MainBannerController {
 
     @GetMapping({"/details/{txnType}/{txnId}"})
     public ResponseEntity<List<TxnContent>> getTxnDetails(@PathVariable String txnType, @PathVariable String txnId) {
-        return new ResponseEntity<>(mainBannerServiceApi.getTxnDetailsById(txnType, txnId), HttpStatus.OK);
+        List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId);
+        TxnContent txncnt = txnContents.get(0);
+        txncnt.setTxnSource("https://sortplatformlogos.s3.us-east-2.amazonaws.com/" + txncnt.getTxnSource() + ".png");
+        txnContents.set(0, txncnt);
+        return new ResponseEntity<>(txnContents, HttpStatus.OK);
     }
 
     @GetMapping({"/getAllSortedData"})
@@ -162,7 +176,7 @@ public class MainBannerController {
         return ResponseEntity.ok(json);
     }
 
-   /* @PostMapping(value = "/addPreferences", produces = "application/json", consumes = "application/json")
+    @PostMapping(value = "/addPreferences", produces = "application/json", consumes = "application/json")
     public ResponseEntity<?> addPreferences(@RequestBody PreferenceRequest preferenceRequest) {
         User user = userRepository.findByEmailAndProvider(preferenceRequest.getEmail(), Provider.valueOf(preferenceRequest.getProvider().toUpperCase())).get();
 
@@ -175,10 +189,12 @@ public class MainBannerController {
         Set<EventGenre> eventGenresSet = new HashSet<>();
 
         movieGenres.forEach(movieG -> {
-            //   MovieGenre movieGenre = mo.findByName(EMovieGenre.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            // movieGenresSet.add(userRole);
+            MovieGenre movieGenre1 = movieGenreRepository.findByMovieGenre(EMovieGenre.valueOf(movieG.toUpperCase())).orElseThrow(() -> new RuntimeException("Error: Movie Genre is not found."));
+            movieGenresSet.add(movieGenre1);
         });
 
-        return ResponseEntity.ok(json);
-    }*/
+        user.setMovieGenres(movieGenresSet);
+
+        return ResponseEntity.ok(new MessageResponse("Movie Genres created."));
+    }
 }

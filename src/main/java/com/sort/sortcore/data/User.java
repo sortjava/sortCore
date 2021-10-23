@@ -41,7 +41,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     Profile profile;
 
-  /*  @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_moviegenres",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "moviegenres_id"))
@@ -57,7 +57,7 @@ public class User {
     @JoinTable(name = "users_movielanguage",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "movielanguage_id"))
-    private Set<MovieLanguage> movieLanguage = new HashSet<>();*/
+    private Set<MovieLanguage> movieLanguage = new HashSet<>();
 
     public User() {
     }
@@ -141,5 +141,29 @@ public class User {
 
     public void setProfile(Profile profile) {
         this.profile = profile;
+    }
+
+    public Set<MovieGenre> getMovieGenres() {
+        return movieGenres;
+    }
+
+    public void setMovieGenres(Set<MovieGenre> movieGenres) {
+        this.movieGenres = movieGenres;
+    }
+
+    public Set<EventGenre> getEventGenres() {
+        return eventGenres;
+    }
+
+    public void setEventGenres(Set<EventGenre> eventGenres) {
+        this.eventGenres = eventGenres;
+    }
+
+    public Set<MovieLanguage> getMovieLanguage() {
+        return movieLanguage;
+    }
+
+    public void setMovieLanguage(Set<MovieLanguage> movieLanguage) {
+        this.movieLanguage = movieLanguage;
     }
 }

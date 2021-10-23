@@ -148,7 +148,7 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     }
 
     private MainBannerContent getMainBannerContent(TxnContent tx) {
-        return MainBannerContent.builder().txn_id(tx.getTxnId()).txn_title(tx.getTxnTitle()).txn_banner_image(tx.getTxnBannerImage())
+        return MainBannerContent.builder().txn_id(tx.getTxnId()).txn_title(tx.getTxnTitle()).txn_type(tx.getTxnType()).txn_banner_image(tx.getTxnBannerImage())
                 .txn_vertical_image(tx.getTxnVerticalImage()).build();
     }
 }
