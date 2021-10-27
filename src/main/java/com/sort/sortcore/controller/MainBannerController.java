@@ -189,12 +189,24 @@ public class MainBannerController {
         Set<EventGenre> eventGenresSet = new HashSet<>();
 
         movieGenres.forEach(movieG -> {
-            MovieGenre movieGenre1 = movieGenreRepository.findByMovieGenre(EMovieGenre.valueOf(movieG.toUpperCase())).orElseThrow(() -> new RuntimeException("Error: Movie Genre is not found."));
-            movieGenresSet.add(movieGenre1);
+            MovieGenre movieGenre = movieGenreRepository.findByMovieGenre(EMovieGenre.valueOf(movieG.toUpperCase())).orElseThrow(() -> new RuntimeException("Error: Movie Genre(s) are not found."));
+            movieGenresSet.add(movieGenre);
+        });
+        movieLanguages.forEach(movieL -> {
+            MovieLanguage movieLanguage = movieLanguageRepository.findByMovieLanguage(EMovieLanguage.valueOf(movieL.toUpperCase())).orElseThrow(() -> new RuntimeException("Error: Movie Language(s) are not found."));
+            movieLanguageSet.add(movieLanguage);
+        });
+        eventGenres.forEach(eventG -> {
+            EventGenre eventGenre = eventGenreRepository.findByEventGenre(EEventGenre.valueOf(eventG.toUpperCase())).orElseThrow(() -> new RuntimeException("Error: Event Genre(s) are not found."));
+            eventGenresSet.add(eventGenre);
         });
 
         user.setMovieGenres(movieGenresSet);
+        user.setMovieLanguage(movieLanguageSet);
+        user.setEventGenres(eventGenresSet);
 
-        return ResponseEntity.ok(new MessageResponse("Movie Genres created."));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("User Preferences have been updated successfully."));
     }
 }

@@ -37,7 +37,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     String[] whitelistResources = new String[]{
-            "/", "/login", "/api/auth/**", "/h2-console/**", "/resources/**", "/static/**", "/templates/**", "/api/**", "/css/**", "/js/**"
+            "/", "/login", "/api/auth/**", "/resources/**", "/static/**", "/templates/**", "/api/**", "/css/**", "/js/**"
+            //, "/h2-console/**"
     };
 
     @Override

@@ -1,16 +1,10 @@
 package com.sort.sortcore.config;
 
-import com.sort.sortcore.data.ERole;
-import com.sort.sortcore.data.Role;
-import com.sort.sortcore.repository.RoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
+/*
 @Component
 class DemoCommandLineRunner implements CommandLineRunner {
 
-    @Autowired
+ @Autowired
     private RoleRepository roleRepository;
 
     @Override
@@ -31,4 +25,7 @@ class DemoCommandLineRunner implements CommandLineRunner {
         roleModerator.setName(ERole.ROLE_MODERATOR);
         roleRepository.save(roleModerator);
     }
+}*/
+
+class DemoCommandLineRunner {
 }
