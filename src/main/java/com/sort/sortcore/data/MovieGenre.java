@@ -35,4 +35,9 @@ public class MovieGenre {
     public void setMovieGenre(EMovieGenre movieGenre) {
         this.movieGenre = movieGenre;
     }
+
+    @Override
+    public String toString() {
+        return movieGenre.toString();
+    }
 }

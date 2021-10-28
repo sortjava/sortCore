@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -177,7 +178,7 @@ public class MainBannerController {
     }
 
     @PostMapping(value = "/addPreferences", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<?> addPreferences(@RequestBody PreferenceRequest preferenceRequest) {
+    public ResponseEntity<PreferenceRequest> addPreferences(@RequestBody PreferenceRequest preferenceRequest) {
         User user = userRepository.findByEmailAndProvider(preferenceRequest.getEmail(), Provider.valueOf(preferenceRequest.getProvider().toUpperCase())).get();
 
         Set<String> movieGenres = preferenceRequest.getMovieGenres();
@@ -207,6 +208,37 @@ public class MainBannerController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User Preferences have been updated successfully."));
+        PreferenceRequest preferenceRequest1 = new PreferenceRequest();
+        preferenceRequest1.setEmail(preferenceRequest.getEmail());
+        preferenceRequest1.setProvider(preferenceRequest.getProvider());
+        preferenceRequest1.setMovieGenres(movieGenresSet.stream().map(Object::toString).collect(Collectors.toSet()));
+        preferenceRequest1.setMovieLanguages(movieLanguageSet.stream().map(Object::toString).collect(Collectors.toSet()));
+        preferenceRequest1.setEventGenre(eventGenresSet.stream().map(Object::toString).collect(Collectors.toSet()));
+
+        return new ResponseEntity<>(preferenceRequest1, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/getPreferences", produces = "application/json")
+    public ResponseEntity<PreferenceRequest> getPreferences(@RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+
+        Set<MovieGenre> movieGenresSet = movieGenreRepository.findAllByUserId(user.getId());
+        Set<MovieLanguage> movieLanguageSet = movieLanguageRepository.findAllByUserId(user.getId());
+        Set<EventGenre> eventGenresSet = eventGenreRepository.findAllByUserId(user.getId());
+
+        PreferenceRequest preferenceRequest1 = new PreferenceRequest();
+        preferenceRequest1.setEmail(tempEmail);
+        preferenceRequest1.setProvider(tempProvider);
+        preferenceRequest1.setMovieGenres(movieGenresSet.stream().map(Object::toString).collect(Collectors.toSet()));
+        preferenceRequest1.setMovieLanguages(movieLanguageSet.stream().map(Object::toString).collect(Collectors.toSet()));
+        preferenceRequest1.setEventGenre(eventGenresSet.stream().map(Object::toString).collect(Collectors.toSet()));
+
+        return new ResponseEntity<>(preferenceRequest1, HttpStatus.OK);
     }
 }

@@ -35,4 +35,9 @@ public class EventGenre {
     public void setEventGenre(EEventGenre eventGenre) {
         this.eventGenre = eventGenre;
     }
+
+    @Override
+    public String toString() {
+        return eventGenre.toString();
+    }
 }

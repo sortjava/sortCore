@@ -35,4 +35,9 @@ public class MovieLanguage {
     public void setMovieLanguage(EMovieLanguage movieLanguage) {
         this.movieLanguage = movieLanguage;
     }
+
+    @Override
+    public String toString() {
+        return movieLanguage.toString();
+    }
 }
