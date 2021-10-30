@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,9 @@ public class MainBannerController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    FavouritesRepository favouritesRepository;
 
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
@@ -218,7 +222,7 @@ public class MainBannerController {
         return new ResponseEntity<>(preferenceRequest1, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/getPreferences", produces = "application/json")
+    @GetMapping(value = "/getPreferences", produces = "application/json")
     public ResponseEntity<PreferenceRequest> getPreferences(@RequestHeader("Authorization") String token) {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
@@ -240,5 +244,45 @@ public class MainBannerController {
         preferenceRequest1.setEventGenre(eventGenresSet.stream().map(Object::toString).collect(Collectors.toSet()));
 
         return new ResponseEntity<>(preferenceRequest1, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/addFavourites/{itemId}", produces = "application/json")
+    public ResponseEntity<Favourites> addFavourites(@PathVariable String itemId, @RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+
+        Favourites favourites = new Favourites();
+        favourites.setUserId(user.getId());
+        favourites.setItemId(itemId);
+
+        favouritesRepository.save(favourites);
+
+        return new ResponseEntity<>(favouritesRepository.findByUserIdAndItemId(user.getId(), itemId), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getFavourites", produces = "application/json")
+    public CompletableFuture<List<MainBannerContent>> getFavourites(@RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+        List<Favourites> favouritesList = favouritesRepository.findAllByUserId(user.getId());
+        List<String> favListString = new ArrayList<>();
+        favouritesList.forEach(favList -> {
+            favListString.add(favList.getItemId());
+        });
+        StringBuilder sb = new StringBuilder("");
+        favListString.forEach(movieID -> {
+            sb.append(movieID + " ");
+        });
+        return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString());
     }
 }

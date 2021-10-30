@@ -119,6 +119,11 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     }
 
     @Override
+    public CompletableFuture<List<MainBannerContent>> getTxnDetailsFavouritesById(String Id) {
+        return this.getListMainBannerContent(Map.of("txn_id", Id));
+    }
+
+    @Override
     public List<TxnContent> getTxnDetailsById(String txnType, String Id) {
         return this.sortCoreServiceApi.queryTnxContent(Map.of("txn_type", txnType, "txn_id", Id));
     }

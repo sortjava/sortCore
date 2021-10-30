@@ -15,6 +15,8 @@ public interface MainBannerServiceApi {
 
     CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType);
 
+    CompletableFuture<List<MainBannerContent>> getTxnDetailsFavouritesById(String Id);
+
     List<TxnContent> getTxnDetailsById(String txnType, String id);
 
     void populateMainBannerCache();
