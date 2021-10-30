@@ -13,6 +13,8 @@ public class EventGenre {
     @Column(length = 50)
     private EEventGenre eventGenre;
 
+    private String eventGenreImage;
+
     public EventGenre() {
     }
 
@@ -34,6 +36,14 @@ public class EventGenre {
 
     public void setEventGenre(EEventGenre eventGenre) {
         this.eventGenre = eventGenre;
+    }
+
+    public String getEventGenreImage() {
+        return eventGenreImage;
+    }
+
+    public void setEventGenreImage(String eventGenreImage) {
+        this.eventGenreImage = eventGenreImage;
     }
 
     @Override

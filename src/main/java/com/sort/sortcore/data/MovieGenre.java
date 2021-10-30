@@ -13,6 +13,8 @@ public class MovieGenre {
     @Column(length = 50)
     private EMovieGenre movieGenre;
 
+    private String movieGenreImage;
+
     public MovieGenre() {
     }
 
@@ -34,6 +36,14 @@ public class MovieGenre {
 
     public void setMovieGenre(EMovieGenre movieGenre) {
         this.movieGenre = movieGenre;
+    }
+
+    public String getMovieGenreImage() {
+        return movieGenreImage;
+    }
+
+    public void setMovieGenreImage(String movieGenreImage) {
+        this.movieGenreImage = movieGenreImage;
     }
 
     @Override

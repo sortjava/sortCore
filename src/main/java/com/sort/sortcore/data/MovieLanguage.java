@@ -13,6 +13,8 @@ public class MovieLanguage {
     @Column(length = 50)
     private EMovieLanguage movieLanguage;
 
+    private String movieLanguageImage;
+
     public MovieLanguage() {
     }
 
@@ -34,6 +36,14 @@ public class MovieLanguage {
 
     public void setMovieLanguage(EMovieLanguage movieLanguage) {
         this.movieLanguage = movieLanguage;
+    }
+
+    public String getMovieLanguageImage() {
+        return movieLanguageImage;
+    }
+
+    public void setMovieLanguageImage(String movieLanguageImage) {
+        this.movieLanguageImage = movieLanguageImage;
     }
 
     @Override

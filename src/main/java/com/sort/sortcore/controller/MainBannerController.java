@@ -285,4 +285,15 @@ public class MainBannerController {
         });
         return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString());
     }
+
+    @GetMapping(value = "/fetchGenreData/{genreType}", produces = "application/json")
+    public List<?> fetchMovieLanguages(@PathVariable String genreType) {
+        if ("moviegenre".equalsIgnoreCase(genreType)) {
+            return movieGenreRepository.findAllByIdGreaterThan(1L);
+        } else if ("movielanguage".equalsIgnoreCase(genreType)) {
+            return movieLanguageRepository.findAllByIdGreaterThan(1L);
+        } else {
+            return eventGenreRepository.findAllByIdGreaterThan(1L);
+        }
+    }
 }
