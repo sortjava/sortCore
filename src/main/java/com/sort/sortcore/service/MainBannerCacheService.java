@@ -35,8 +35,6 @@ public class MainBannerCacheService implements MainBannerServiceApi {
     private static final Map<String, Object> MAIN_EVENT_QUERY_MAP = Map.of("aud_priority", "1", "aud_active", "1", "txn_type", "event");
     private static final Map<String, Object> RECOMMENDED_MOVIE_QUERY_MAP = Map.of("aud_priority", "1", "txn_type", "movie");
     private static final Map<String, Object> RECOMMENDED_EVENT_QUERY_MAP = Map.of("txn_genres", "Workshops", "txn_type", "event");
-    private static final Map<String, Object> SEARCH_QUERY_MAP = Map.of("txn_title", "Trapped", "txn_description", "trapped");
-
     private static final String CACHE_NAME = "main-banner";
     private static final String CACHE_KEY = "DATA";
     private final Counter cacheRefreshCounter;
@@ -108,7 +106,7 @@ public class MainBannerCacheService implements MainBannerServiceApi {
 
     @Override
     public CompletableFuture<List<MainBannerContent>> getSearchData(String searchText) {
-        return this.getListMainBannerContent(SEARCH_QUERY_MAP, searchText);
+        return this.getListMainBannerContent(Map.of("txn_title", searchText, "txn_genres", searchText, "txn_cast", searchText, "txn_type", searchText), searchText);
     }
 
     @Override
