@@ -61,7 +61,7 @@ public class MainBannerController {
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBanner() {
-        return this.mainBannerServiceApi.getMainBannerData();
+        return this.mainBannerServiceApi.getMainBannerData("");
     }
     /*public CompletableFuture<List<MainBannerContent>> getMainBanner() throws IOException {
 		CompletableFuture<List<MainBannerContent>> listCompletableFuture = new CompletableFuture();
@@ -77,22 +77,27 @@ public class MainBannerController {
 
     @GetMapping(value = "/mainBanner/{txnType}", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(@PathVariable String txnType) {
-        return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType);
+        return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType, "");
+    }
+
+    @GetMapping(value = "/search/{searchText}", produces = "application/json")
+    public CompletableFuture<List<MainBannerContent>> searchData(@PathVariable String searchText) {
+        return this.mainBannerServiceApi.getSearchData(searchText);
     }
 
     @GetMapping({"/recommendedList/{txnType}"})
     public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(@PathVariable String txnType) {
-        return this.mainBannerServiceApi.getRecommendedBannerMovieEventData(txnType);
+        return this.mainBannerServiceApi.getRecommendedBannerMovieEventData(txnType, "");
     }
 
     @GetMapping({"/list/{txnType}"})
     public CompletableFuture<List<MainBannerContent>> getTxnTypeList(@PathVariable String txnType) {
-        return this.mainBannerServiceApi.getTxnTypeList(txnType);
+        return this.mainBannerServiceApi.getTxnTypeList(txnType, "");
     }
 
     @GetMapping({"/details/{txnType}/{txnId}"})
     public ResponseEntity<List<TxnContent>> getTxnDetails(@PathVariable String txnType, @PathVariable String txnId) {
-        List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId);
+        List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId, "");
         TxnContent txncnt = txnContents.get(0);
         txncnt.setTxnSource("https://sortplatformlogos.s3.us-east-2.amazonaws.com/" + txncnt.getTxnSource() + ".png");
         txnContents.set(0, txncnt);
@@ -283,7 +288,7 @@ public class MainBannerController {
         favListString.forEach(movieID -> {
             sb.append(movieID + " ");
         });
-        return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString());
+        return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString(), "");
     }
 
     @GetMapping(value = "/fetchGenreData/{genreType}", produces = "application/json")

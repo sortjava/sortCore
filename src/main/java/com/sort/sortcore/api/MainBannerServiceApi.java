@@ -7,17 +7,19 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface MainBannerServiceApi {
-    CompletableFuture<List<MainBannerContent>> getMainBannerData();
+    CompletableFuture<List<MainBannerContent>> getMainBannerData(String searchText);
 
-    CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType);
+    CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType, String searchText);
 
-    CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType);
+    CompletableFuture<List<MainBannerContent>> getSearchData(String searchText);
 
-    CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType);
+    CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType, String searchText);
 
-    CompletableFuture<List<MainBannerContent>> getTxnDetailsFavouritesById(String Id);
+    CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType, String searchText);
 
-    List<TxnContent> getTxnDetailsById(String txnType, String id);
+    CompletableFuture<List<MainBannerContent>> getTxnDetailsFavouritesById(String Id, String searchText);
+
+    List<TxnContent> getTxnDetailsById(String txnType, String id, String searchText);
 
     void populateMainBannerCache();
 }
