@@ -106,6 +106,10 @@ public class MainBannerCacheService implements MainBannerServiceApi {
 
     @Override
     public CompletableFuture<List<MainBannerContent>> getSearchData(String searchText) {
+      /*  String[] strA = searchText.split("-");
+        String sText = strA[1];
+        sText = sText.replaceAll("\\s+", "+");*/
+        searchText = searchText.replaceAll("\\s+", "+");
         return this.getListMainBannerContent(Map.of("txn_title", searchText, "txn_genres", searchText, "txn_cast", searchText, "txn_type", searchText), searchText);
     }
 

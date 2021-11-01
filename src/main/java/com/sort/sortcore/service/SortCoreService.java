@@ -43,6 +43,10 @@ public class SortCoreService implements SortCoreServiceApi {
             BoolQueryBuilder boolQuery = new BoolQueryBuilder();
             Iterator var3 = fields.entrySet().iterator();
 
+            /*String[] strA = searchText.split("-");
+            String sType = strA[0];
+            String sText = strA[1];*/
+
             while (var3.hasNext()) {
                 Entry<String, Object> entry = (Entry) var3.next();
                 if (searchText.isEmpty() || "".equals(searchText)) {
@@ -56,8 +60,9 @@ public class SortCoreService implements SortCoreServiceApi {
             searchSourceBuilder.query(boolQuery);
             if (!(searchText.isEmpty() || "".equals(searchText))) {
                 searchSourceBuilder.sort("_score", SortOrder.DESC);
-                //searchSourceBuilder.sort("txn_year", SortOrder.DESC);
-                //searchSourceBuilder.sort(new FieldSortBuilder("txn_year").order(SortOrder.DESC));
+               /* FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort("txn_year" + ".keyword");
+                fieldSortBuilder.order(SortOrder.DESC);
+                searchSourceBuilder.sort(fieldSortBuilder); */
             }
             searchSourceBuilder.size(5000);
             SearchRequest searchRequest = new SearchRequest();
@@ -66,7 +71,11 @@ public class SortCoreService implements SortCoreServiceApi {
             return Try.of(() -> {
                 return this.restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             }).map((searchResponse) -> {
-                return this.getSearchHits(fields, searchResponse);
+                if (!(searchText.isEmpty() || "".equals(searchText))) {
+                    return this.getSearchHits(fields, searchResponse).stream().limit(10).collect(Collectors.toList());
+                } else {
+                    return this.getSearchHits(fields, searchResponse);
+                }
             }).onFailure((e) -> {
                 log.error("restHighLevelClient error index={}, query={}", new Object[]{this.txIndex, fields, e});
             }).getOrElse(List::of);
