@@ -24,6 +24,8 @@ public class Favourites {
     Long userId;
     @Size(max = 60)
     String itemId;
+    @Size(max = 15)
+    String itemType;
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime dateCreated;

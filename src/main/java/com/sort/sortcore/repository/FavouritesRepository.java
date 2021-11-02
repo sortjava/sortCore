@@ -8,7 +8,9 @@ import java.util.List;
 
 @Repository
 public interface FavouritesRepository extends CrudRepository<Favourites, Long> {
-    Favourites findByUserIdAndItemId(Long userID, String itemId);
+    Favourites findByUserIdAndItemTypeAndItemId(Long userID, String itemType, String itemId);
 
-    List<Favourites> findAllByUserId(Long userID);
+    Boolean existsByUserIdAndItemTypeAndItemId(Long userID, String itemType, String itemId);
+
+    List<Favourites> findAllByUserIdAndItemType(Long userID, String itemType);
 }

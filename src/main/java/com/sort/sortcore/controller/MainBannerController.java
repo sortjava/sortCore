@@ -251,8 +251,8 @@ public class MainBannerController {
         return new ResponseEntity<>(preferenceRequest1, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/addFavourites/{itemId}", produces = "application/json")
-    public ResponseEntity<Favourites> addFavourites(@PathVariable String itemId, @RequestHeader("Authorization") String token) {
+    @GetMapping(value = "/addFavourites/{itemType}/{itemId}", produces = "application/json")
+    public ResponseEntity addFavourites(@PathVariable String itemType, @PathVariable String itemId, @RequestHeader("Authorization") String token) {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
@@ -261,17 +261,22 @@ public class MainBannerController {
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
 
-        Favourites favourites = new Favourites();
-        favourites.setUserId(user.getId());
-        favourites.setItemId(itemId);
+        if (favouritesRepository.existsByUserIdAndItemTypeAndItemId(user.getId(), itemType, itemId)) {
+            favouritesRepository.delete(favouritesRepository.findByUserIdAndItemTypeAndItemId(user.getId(), itemType, itemId));
+            return new ResponseEntity("Item successfully removed from Favourites list", HttpStatus.OK);
+        } else {
+            Favourites favourites = new Favourites();
+            favourites.setUserId(user.getId());
+            favourites.setItemType(itemType);
+            favourites.setItemId(itemId);
+            favouritesRepository.save(favourites);
 
-        favouritesRepository.save(favourites);
-
-        return new ResponseEntity<>(favouritesRepository.findByUserIdAndItemId(user.getId(), itemId), HttpStatus.OK);
+            return new ResponseEntity("Item successfully added to Favourites list", HttpStatus.CREATED);
+        }
     }
 
-    @GetMapping(value = "/getFavourites", produces = "application/json")
-    public CompletableFuture<List<MainBannerContent>> getFavourites(@RequestHeader("Authorization") String token) {
+    @GetMapping(value = "/getFavourites/{itemType}", produces = "application/json")
+    public CompletableFuture<List<MainBannerContent>> getFavourites(@PathVariable String itemType, @RequestHeader("Authorization") String token) {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
@@ -279,7 +284,7 @@ public class MainBannerController {
             tempProvider = "LOCAL";
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
-        List<Favourites> favouritesList = favouritesRepository.findAllByUserId(user.getId());
+        List<Favourites> favouritesList = favouritesRepository.findAllByUserIdAndItemType(user.getId(), itemType);
         List<String> favListString = new ArrayList<>();
         favouritesList.forEach(favList -> {
             favListString.add(favList.getItemId());
