@@ -80,9 +80,9 @@ public class MainBannerController {
         return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType, "");
     }
 
-    @GetMapping(value = "/search/{searchText}", produces = "application/json")
-    public CompletableFuture<List<MainBannerContent>> searchData(@PathVariable String searchText) {
-        return this.mainBannerServiceApi.getSearchData(searchText);
+    @GetMapping(value = "/search/{searchType}/{searchText}", produces = "application/json")
+    public CompletableFuture<List<MainBannerContent>> searchData(@PathVariable String searchType, @PathVariable String searchText) {
+        return this.mainBannerServiceApi.getSearchData(searchText, searchType);
     }
 
     @GetMapping({"/recommendedList/{txnType}"})

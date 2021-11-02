@@ -10,8 +10,8 @@ public interface MainBannerServiceApi {
     CompletableFuture<List<MainBannerContent>> getMainBannerData(String searchText);
 
     CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType, String searchText);
-
-    CompletableFuture<List<MainBannerContent>> getSearchData(String searchText);
+    
+    CompletableFuture<List<MainBannerContent>> getSearchData(String searchText, String searchType);
 
     CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType, String searchText);
 
