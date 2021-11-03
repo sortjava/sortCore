@@ -58,6 +58,9 @@ public class MainBannerController {
     @Autowired
     FavouritesRepository favouritesRepository;
 
+    @Autowired
+    LikeDislikeRepository likeDislikeRepository;
+
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBanner() {
@@ -96,12 +99,38 @@ public class MainBannerController {
     }
 
     @GetMapping({"/details/{txnType}/{txnId}"})
-    public ResponseEntity<List<TxnContent>> getTxnDetails(@PathVariable String txnType, @PathVariable String txnId) {
+    public ResponseEntity<List<TxnContent>> getTxnDetails(@PathVariable String txnType, @PathVariable String txnId, @RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+
+        List<Favourites> favouritesList = favouritesRepository.findAllByUserIdAndItemType(user.getId(), txnType);
+        List<String> favListString = new ArrayList<>();
+        favouritesList.forEach(favList -> {
+            favListString.add(favList.getItemId());
+        });
+        System.out.println(favListString.toString());
+
         List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId, "");
         TxnContent txncnt = txnContents.get(0);
         txncnt.setTxnSource("https://sortplatformlogos.s3.us-east-2.amazonaws.com/" + txncnt.getTxnSource() + ".png");
+        if (favListString.contains(txnId)) {
+            txncnt.setAudWishlistFlag("1");
+        }
         txnContents.set(0, txncnt);
         return new ResponseEntity<>(txnContents, HttpStatus.OK);
+
+
+        //////////////////////
+        /*List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId, "");
+        TxnContent txncnt = txnContents.get(0);
+        txncnt.setTxnSource("https://sortplatformlogos.s3.us-east-2.amazonaws.com/" + txncnt.getTxnSource() + ".png");
+        txnContents.set(0, txncnt);
+        return new ResponseEntity<>(txnContents, HttpStatus.OK);*/
     }
 
     @GetMapping({"/getAllSortedData"})
@@ -305,5 +334,31 @@ public class MainBannerController {
         } else {
             return eventGenreRepository.findAllByIdGreaterThan(1L);
         }
+    }
+
+    @PostMapping(value = "/addChoice", produces = "application/json")
+    public ResponseEntity addChoice(@RequestBody LikeDislikeRequest likeDislikeRequest, @RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+
+        LikeDislike likeDislike;
+        if (likeDislikeRepository.existsByUserIdAndItemTypeAndItemId(user.getId(), likeDislikeRequest.getItemType(), likeDislikeRequest.getItemId())) {
+            likeDislike = likeDislikeRepository.findByUserIdAndItemTypeAndItemId(user.getId(), likeDislikeRequest.getItemType(), likeDislikeRequest.getItemId());
+        } else {
+            likeDislike = new LikeDislike();
+        }
+        likeDislike.setUserId(user.getId());
+        likeDislike.setItemType(likeDislikeRequest.getItemType());
+        likeDislike.setItemId(likeDislikeRequest.getItemId());
+        likeDislike.setLikeFlag(likeDislikeRequest.getLikeFlag());
+        likeDislike.setDislikeFlag(likeDislikeRequest.getDislikeFlag());
+        likeDislikeRepository.save(likeDislike);
+
+        return new ResponseEntity("Like and Dislike flags have been updated successfully", HttpStatus.CREATED);
     }
 }
