@@ -27,9 +27,9 @@ public class LikeDislike {
     @Size(max = 60)
     String itemId;
     @Size(max = 3)
-    String likeFlag;
+    String likeFlag = "0";
     @Size(max = 3)
-    String dislikeFlag;
+    String dislikeFlag = "0";
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime dateCreated;

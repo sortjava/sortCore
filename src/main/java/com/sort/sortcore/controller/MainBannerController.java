@@ -113,7 +113,13 @@ public class MainBannerController {
         favouritesList.forEach(favList -> {
             favListString.add(favList.getItemId());
         });
-        System.out.println(favListString.toString());
+
+        LikeDislike likeDislike;
+        if (likeDislikeRepository.existsByUserIdAndItemTypeAndItemId(user.getId(), txnType, txnId)) {
+            likeDislike = likeDislikeRepository.findByUserIdAndItemTypeAndItemId(user.getId(), txnType, txnId);
+        } else {
+            likeDislike = new LikeDislike();
+        }
 
         List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId, "");
         TxnContent txncnt = txnContents.get(0);
@@ -121,16 +127,10 @@ public class MainBannerController {
         if (favListString.contains(txnId)) {
             txncnt.setAudWishlistFlag("1");
         }
+        txncnt.setAudLikeFlag(likeDislike.getLikeFlag());
+        txncnt.setAudUnlikeFlag(likeDislike.getDislikeFlag());
         txnContents.set(0, txncnt);
         return new ResponseEntity<>(txnContents, HttpStatus.OK);
-
-
-        //////////////////////
-        /*List<TxnContent> txnContents = mainBannerServiceApi.getTxnDetailsById(txnType, txnId, "");
-        TxnContent txncnt = txnContents.get(0);
-        txncnt.setTxnSource("https://sortplatformlogos.s3.us-east-2.amazonaws.com/" + txncnt.getTxnSource() + ".png");
-        txnContents.set(0, txncnt);
-        return new ResponseEntity<>(txnContents, HttpStatus.OK);*/
     }
 
     @GetMapping({"/getAllSortedData"})
