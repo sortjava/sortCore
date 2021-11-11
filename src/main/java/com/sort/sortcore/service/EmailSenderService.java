@@ -1,8 +1,9 @@
 package com.sort.sortcore.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class EmailSenderService {
     }
 
     @Async
-    public void sendEmail(SimpleMailMessage email) {
-        javaMailSender.send(email);
+    public void sendEmail(MimeMessageHelper email) {
+        javaMailSender.send((MimeMessagePreparator) email);
     }
 }

@@ -20,6 +20,9 @@ public class JwtUtils {
     @Value("${sort.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    @Value("${sort.app.jwtRefreshExpirationMs}")
+    private int jwtRefreshExpirationMs;
+
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()

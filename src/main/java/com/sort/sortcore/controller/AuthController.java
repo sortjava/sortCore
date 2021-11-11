@@ -8,8 +8,10 @@ import com.sort.sortcore.security.jwt.JwtUtils;
 import com.sort.sortcore.service.EmailSenderService;
 import com.sort.sortcore.service.impl.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,8 +22,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +60,9 @@ public class AuthController {
 
     @Autowired
     HttpServletRequest servletRequest;
+
+    @Autowired
+    JavaMailSender mailSender;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -133,12 +142,20 @@ public class AuthController {
             ConfirmationToken confirmationToken = new ConfirmationToken(user);
             confirmationTokenRepository.save(confirmationToken);
             String baseUrl = ServletUriComponentsBuilder.fromRequestUri(servletRequest).replacePath(null).build().toUriString();
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
-            mailMessage.setTo(user.getEmail());
-            mailMessage.setSubject("Complete your SORT registration!");
-            mailMessage.setFrom("sortedjava@gmail.com");
-            mailMessage.setText("To confirm your account, please click here : " + baseUrl + "/api/auth/confirm-account?token=" + confirmationToken.getConfirmationToken());
-            emailSenderService.sendEmail(mailMessage);
+            try {
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper mailMessage = new MimeMessageHelper(mimeMessage, "utf-8");
+                String emailURL = baseUrl + "/api/auth/confirm-account?token=" + confirmationToken.getConfirmationToken();
+                String htmlEmailBody = "<p>Thank you for downloading SORT!</p><p>To complete your SORT registration, please click <a href=" + emailURL + ">here</a>.</p><p><strong><u>Please note:</u> We are in Beta and some features in the app might be inactive or not work properly. We will continue to update our app regularly during our Beta phase to give you a seamless experience.</strong></p>\n" +
+                        "<p>Get in touch with us at <a href=\"mailto:info@sort.live\" target=\"_blank\">info@sort.live</a>.</p>";
+                mailMessage.setTo(user.getEmail());
+                mailMessage.setSubject("Complete your SORT registration!");
+                mailMessage.setFrom(new InternetAddress("sortedjava@gmail.com", "SORT"));
+                mailMessage.setText(htmlEmailBody, true);
+                mailSender.send(mimeMessage);
+            } catch (MessagingException | UnsupportedEncodingException ex) {
+                return new ResponseEntity("Exception occurred during sending confirmation email", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             return ResponseEntity.ok(new MessageResponse("User registered successfully!. Please check your email to verify your account."));
         }
     }
@@ -184,17 +201,20 @@ public class AuthController {
             confirmationTokenRepository.save(confirmationToken1);
 
             String baseUrl = ServletUriComponentsBuilder.fromRequestUri(servletRequest).replacePath(null).build().toUriString();
-
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
-            mailMessage.setTo(user1.getEmail());
-            mailMessage.setSubject("Reset your SORT password!");
-            mailMessage.setFrom("sortedjava@gmail.com");
-            mailMessage.setText("To reset your account, please click here : "
-                    + baseUrl + "/api/auth/change-password?token="
-                    + confirmationToken1.getConfirmationToken()
-                    + "&reqId=" + encoder.encode(resetRequest.getPassword()));
-
-            emailSenderService.sendEmail(mailMessage);
+            try {
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper mailMessage = new MimeMessageHelper(mimeMessage, "utf-8");
+                String emailURL = baseUrl + "/api/auth/change-password?token=" + confirmationToken1.getConfirmationToken() + "&reqId=" + encoder.encode(resetRequest.getPassword());
+                String htmlEmailBody = "<p>To reset your account, please click <a href=" + emailURL + ">here</a>.</p><p><strong><u>Please note:</u> We are in Beta and some features in the app might be inactive or not work properly. We will continue to update our app regularly during our Beta phase to give you a seamless experience.</strong></p>\n" +
+                        "<p>Get in touch with us at <a href=\"mailto:info@sort.live\" target=\"_blank\">info@sort.live</a>.</p>";
+                mailMessage.setTo(user1.getEmail());
+                mailMessage.setSubject("Reset your SORT password!");
+                mailMessage.setFrom(new InternetAddress("sortedjava@gmail.com", "SORT"));
+                mailMessage.setText(htmlEmailBody, true);
+                mailSender.send(mimeMessage);
+            } catch (MessagingException | UnsupportedEncodingException ex) {
+                return new ResponseEntity("Exception occurred during sending confirmation email", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
             return ResponseEntity.ok(new MessageResponse("User reset password sent successfully!. Please check your email to reset your account."));
         }
