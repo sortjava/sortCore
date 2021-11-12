@@ -16,8 +16,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
-    @Size(max = 60)
+    //@NotBlank
+    // @Size(max = 60)
     private String username;
     @NotBlank
     @Size(max = 60)
