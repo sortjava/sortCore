@@ -1,15 +1,18 @@
 package com.sort.sortcore.data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 public class ResetRequest {
-    @NotBlank
+    @NotBlank(message = "provider cannot be empty")
     private String provider;
 
     @NotBlank
+    @Size(min = 3, max = 60, message = "email cannot be empty and be between {min} and {max} characters")
     private String email;
 
     @NotBlank
+    @Size(min = 4, max = 120, message = "password cannot be empty and should be between {min} and {max} characters")
     private String password;
 
     public String getProvider() {
@@ -19,7 +22,7 @@ public class ResetRequest {
     public void setProvider(String provider) {
         this.provider = provider;
     }
-    
+
     public String getEmail() {
         return email;
     }

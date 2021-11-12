@@ -1,11 +1,13 @@
 package com.sort.sortcore.controller;
 
+import com.sort.sortcore.Exception.RefreshTokenException;
 import com.sort.sortcore.data.*;
 import com.sort.sortcore.repository.ConfirmationTokenRepository;
 import com.sort.sortcore.repository.RoleRepository;
 import com.sort.sortcore.repository.UserRepository;
 import com.sort.sortcore.security.jwt.JwtUtils;
 import com.sort.sortcore.service.EmailSenderService;
+import com.sort.sortcore.service.impl.RefreshTokenService;
 import com.sort.sortcore.service.impl.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,15 +66,21 @@ public class AuthController {
     @Autowired
     JavaMailSender mailSender;
 
+    @Autowired
+    RefreshTokenService refreshTokenService;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        String jwt = jwtUtils.generateJwtToken(authentication);
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), userDetails.getProvider().toString(), roles));
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
+        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken(), userDetails.getId(),
+                userDetails.getUsername(), userDetails.getEmail(), userDetails.getProvider().toString(), roles));
     }
 
     @PostMapping("/signup")
@@ -189,6 +197,28 @@ public class AuthController {
             return new ModelAndView("SignUpErrorPage");
         }
         return new ModelAndView("SignUpConfirmation");
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<?> refreshtoken(@Valid @RequestBody RefreshTokenRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateJwtToken(authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())));
+                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
+                })
+                .orElseThrow(() -> new RefreshTokenException(requestRefreshToken,
+                        "Refresh token is not present in database!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@Valid @RequestBody LogOutRequest logOutRequest) {
+        refreshTokenService.deleteByUserId(logOutRequest.getUserId());
+        return ResponseEntity.ok(new MessageResponse("Log out successful!"));
     }
 
     @PostMapping("/reset-password")
