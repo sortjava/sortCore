@@ -4,9 +4,7 @@ import com.sort.sortcore.service.impl.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +14,8 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    /*@Autowired
+    AuthenticationManager authenticationManager;*/
 
     @Value("${sort.app.jwtSecret}")
     private String jwtSecret;

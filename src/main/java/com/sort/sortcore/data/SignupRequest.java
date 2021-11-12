@@ -8,8 +8,8 @@ import java.util.Set;
 
 @Data
 public class SignupRequest {
-    @NotBlank
-    @Size(min = 3, max = 60, message = "username cannot be empty and should be between {min} and {max} characters")
+    // @NotBlank
+    // @Size(min = 3, max = 60, message = "username cannot be empty and should be between {min} and {max} characters")
     private String username;
 
     @NotBlank(message = "provider cannot be empty")

@@ -79,8 +79,10 @@ public class AuthController {
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
-        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken(), userDetails.getId(),
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(),
                 userDetails.getUsername(), userDetails.getEmail(), userDetails.getProvider().toString(), roles));
+        // return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken(), userDetails.getId(),
+        //userDetails.getUsername(), userDetails.getEmail(), userDetails.getProvider().toString(), roles));
     }
 
     @PostMapping("/signup")
