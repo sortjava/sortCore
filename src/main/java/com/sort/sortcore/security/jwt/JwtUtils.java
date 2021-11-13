@@ -42,19 +42,19 @@ public class JwtUtils {
                 .compact();*/
     }
 
-    public String doGenerateRefreshToken(Authentication authentication) {
+    /*public String doGenerateRefreshToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder().setSubject(userPrincipal.getEmail()).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtRefreshExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
-    }
+    }*/
 
     public String getUserEmailFromJwtToken(String token) {
         System.out.println("inside getUserEmailFromJwtToken method");
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public boolean validateJwtExpiration(String authToken) {
+    /*public boolean validateJwtExpiration(String authToken) {
         System.out.println("inside validateJwtExpiration method");
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
@@ -67,7 +67,7 @@ public class JwtUtils {
             logger.error("JWT generic exception occurred", e.getMessage());
         }
         return false;
-    }
+    }*/
 
     public boolean validateJwtToken(String authToken) {
         System.out.println("inside validateJwtToken method");
