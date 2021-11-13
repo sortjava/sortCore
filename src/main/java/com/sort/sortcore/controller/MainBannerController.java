@@ -103,7 +103,7 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
-        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK") || tempProvider.equalsIgnoreCase("APPLE"))) {
             tempProvider = "LOCAL";
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
@@ -193,7 +193,7 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
-        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK") || tempProvider.equalsIgnoreCase("APPLE"))) {
             tempProvider = "LOCAL";
         }
         return new ResponseEntity<>(profileRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())), HttpStatus.OK);
@@ -261,7 +261,7 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
-        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK") || tempProvider.equalsIgnoreCase("APPLE"))) {
             tempProvider = "LOCAL";
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
@@ -285,7 +285,7 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
-        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK") || tempProvider.equalsIgnoreCase("APPLE"))) {
             tempProvider = "LOCAL";
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
@@ -309,7 +309,7 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
-        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK") || tempProvider.equalsIgnoreCase("APPLE"))) {
             tempProvider = "LOCAL";
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
@@ -341,7 +341,7 @@ public class MainBannerController {
         String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
         String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
         String tempProvider = str.replace(".com", "");
-        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK"))) {
+        if (!(tempProvider.equalsIgnoreCase("GOOGLE") || tempProvider.equalsIgnoreCase("FACEBOOK") || tempProvider.equalsIgnoreCase("APPLE"))) {
             tempProvider = "LOCAL";
         }
         User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
