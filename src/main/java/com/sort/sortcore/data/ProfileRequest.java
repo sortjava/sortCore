@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 public class ProfileRequest {
     String fullName;
     @NotBlank
-    @Size(max = 60)
+    @Size(max = 120)
     String displayEmail;
     String phone;
     @Size(max = 20)

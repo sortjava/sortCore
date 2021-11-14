@@ -7,7 +7,7 @@ public class LoginRequest {
     private String username;
 
     @NotBlank
-    @Size(min = 3, max = 60, message = "email cannot be empty and be between {min} and {max} characters")
+    @Size(min = 3, max = 120, message = "email cannot be empty and be between {min} and {max} characters")
     private String email;
 
     @NotBlank

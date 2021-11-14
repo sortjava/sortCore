@@ -28,7 +28,6 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        System.out.println("inside generateJwtToken method");
         return Jwts.builder()
                 .setSubject((userPrincipal.getEmail()))
                 .setIssuedAt(new Date())
@@ -50,17 +49,14 @@ public class JwtUtils {
     }*/
 
     public String getUserEmailFromJwtToken(String token) {
-        System.out.println("inside getUserEmailFromJwtToken method");
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
     /*public boolean validateJwtExpiration(String authToken) {
-        System.out.println("inside validateJwtExpiration method");
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("inside ExpiredJwtException catch block");
             // this.doGenerateRefreshToken();
             logger.error("JWT token is nowwwww expired: {}", e.getMessage());
         } catch (Exception e) {
@@ -70,7 +66,6 @@ public class JwtUtils {
     }*/
 
     public boolean validateJwtToken(String authToken) {
-        System.out.println("inside validateJwtToken method");
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
@@ -81,9 +76,7 @@ public class JwtUtils {
         } catch (ExpiredJwtException e) {
             /*Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(null, null));
-            System.out.println("inside ExpiredJwtException catch block");
-            String jwtTokentemp = this.generateJwtToken(authentication);
-            System.out.println(jwtTokentemp);*/
+            String jwtTokentemp = this.generateJwtToken(authentication);*/
             logger.error("JWT token is expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             logger.error("JWT token is unsupported: {}", e.getMessage());

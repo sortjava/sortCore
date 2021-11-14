@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class PreferenceRequest {
     @NotBlank
-    @Size(max = 60)
+    @Size(max = 120)
     private String email;
     private String provider;
     private Set<String> movieGenres;

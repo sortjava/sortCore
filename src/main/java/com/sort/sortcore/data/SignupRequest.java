@@ -6,14 +6,14 @@ import java.util.Set;
 
 public class SignupRequest {
     // @NotBlank
-    // @Size(min = 3, max = 60, message = "username cannot be empty and should be between {min} and {max} characters")
+    // @Size(min = 3, max = 120, message = "username cannot be empty and should be between {min} and {max} characters")
     private String username;
 
     @NotBlank(message = "provider cannot be empty")
     private String provider;
 
     @NotBlank
-    @Size(min = 3, max = 60, message = "email cannot be empty and be between {min} and {max} characters")
+    @Size(min = 3, max = 120, message = "email cannot be empty and be between {min} and {max} characters")
     private String email;
 
     private Set<String> role;

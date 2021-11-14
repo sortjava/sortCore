@@ -31,9 +31,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            System.out.println("inside doFilterInternal method");
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                System.out.println("inside doFilterInternal method if condition");
                 String email = jwtUtils.getUserEmailFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -50,7 +48,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        System.out.println("inside parseJwt method");
         String headerAuth = request.getHeader("Authorization");
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {

@@ -93,7 +93,7 @@ public class AuthController {
 
         String tempEmail = signUpRequest.getEmail();
         if ("GOOGLE".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) {
-            tempEmail = tempEmail + "@gmail.com";
+            tempEmail = tempEmail + "@google.com";
         } else if ("FACEBOOK".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) {
             tempEmail = tempEmail + "@facebook.com";
         } else if ("APPLE".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) {
@@ -139,7 +139,7 @@ public class AuthController {
         profile.setProvider(Provider.valueOf(signUpRequest.getProvider()));
         user.setProfile(profile);
 
-        if (signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("GOOGLE") || signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("FACEBOOK") || signUpRequest.getProvider().toUpperCase().equalsIgnoreCase("APPLE")) {
+        if ("GOOGLE".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase()) || "FACEBOOK".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase()) || "APPLE".equalsIgnoreCase(signUpRequest.getProvider().toUpperCase())) {
             if (!(userRepository.existsByEmailAndProvider(tempEmail, Provider.valueOf(signUpRequest.getProvider().toUpperCase())))) {
                 user.setEnabled(true);
                 userRepository.save(user);

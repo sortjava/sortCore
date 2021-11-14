@@ -24,9 +24,9 @@ public class Profile {
     private Integer id;
     String fullName;
     @NotBlank
-    @Size(max = 60)
+    @Size(max = 120)
     String email;
-    @Size(max = 60)
+    @Size(max = 120)
     String displayEmail;
     String phone;
     @Size(max = 15)
