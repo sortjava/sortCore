@@ -72,7 +72,7 @@ public class SortCoreService implements SortCoreServiceApi {
                 return this.restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             }).map((searchResponse) -> {
                 if (!(searchText.isEmpty() || "".equals(searchText))) {
-                    return this.getSearchHits(fields, searchResponse).stream().limit(10).collect(Collectors.toList());
+                    return this.getSearchHits(fields, searchResponse).stream().limit(50).collect(Collectors.toList());
                 } else {
                     return this.getSearchHits(fields, searchResponse);
                 }
