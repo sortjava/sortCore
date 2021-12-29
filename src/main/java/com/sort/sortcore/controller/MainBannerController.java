@@ -8,6 +8,9 @@ import com.sort.sortcore.security.jwt.JwtUtils;
 import com.sort.sortcore.service.SortDataService;
 import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
 import io.swagger.annotations.ApiOperation;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -63,8 +67,8 @@ public class MainBannerController {
 
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
-    public CompletableFuture<List<MainBannerContent>> getMainBanner() {
-        return this.mainBannerServiceApi.getMainBannerData("");
+    public CompletableFuture<List<MainBannerContent>> getMainBanner(@RequestParam Integer page) {
+        return this.mainBannerServiceApi.getMainBannerData("",page);
     }
     /*public CompletableFuture<List<MainBannerContent>> getMainBanner() throws IOException {
 		CompletableFuture<List<MainBannerContent>> listCompletableFuture = new CompletableFuture();
@@ -79,23 +83,23 @@ public class MainBannerController {
     }*/
 
     @GetMapping(value = "/mainBanner/{txnType}", produces = "application/json")
-    public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(@PathVariable String txnType) {
-        return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType, "");
+    public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(@PathVariable String txnType, @RequestParam Integer page) {
+        return this.mainBannerServiceApi.getMainBannerMovieEventData(txnType, "", page);
     }
 
     @GetMapping(value = "/search/{searchType}/{searchText}", produces = "application/json")
-    public CompletableFuture<List<MainBannerContent>> searchData(@PathVariable String searchType, @PathVariable String searchText) {
-        return this.mainBannerServiceApi.getSearchData(searchText, searchType);
+    public CompletableFuture<List<MainBannerContent>> searchData(@PathVariable String searchType, @PathVariable String searchText, @RequestParam Integer page) {
+        return this.mainBannerServiceApi.getSearchData(searchText, searchType, page);
     }
 
     @GetMapping({"/recommendedList/{txnType}"})
-    public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(@PathVariable String txnType) {
-        return this.mainBannerServiceApi.getRecommendedBannerMovieEventData(txnType, "");
+    public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(@PathVariable String txnType, @RequestParam Integer page) {
+        return this.mainBannerServiceApi.getRecommendedBannerMovieEventData(txnType, "", page);
     }
 
     @GetMapping({"/list/{txnType}"})
-    public CompletableFuture<List<MainBannerContent>> getTxnTypeList(@PathVariable String txnType) {
-        return this.mainBannerServiceApi.getTxnTypeList(txnType, "");
+    public CompletableFuture<List<MainBannerContent>> getTxnTypeList(@PathVariable String txnType, @RequestParam Integer page) {
+        return this.mainBannerServiceApi.getTxnTypeList(txnType, "", page);
     }
 
     @GetMapping({"/details/{txnType}/{txnId}"})
@@ -200,17 +204,17 @@ public class MainBannerController {
     }
 
     @GetMapping(value = "/genreList/{itemType}", produces = "application/json")
-    public ResponseEntity<?> downloadFile(@PathVariable String itemType) {
+    public ResponseEntity<?> downloadFile(@PathVariable String itemType, @RequestParam Integer page) {
         String json = "";
         try {
             /*File resource = new ClassPathResource("/static/json_10-13-2021_12-34-27.json").getFile();
             File resource1 = new File()
             json = new String(Files.readAllBytes(resource.toPath()));*/
-
-            S3Object data = documentManagementService.downloadFileFromS3bucket(itemType + ".json", "myjsonbucket");
-            json = new String(data.getObjectContent().readAllBytes());
+            
+        	S3Object data = documentManagementService.downloadFileFromS3bucket(itemType + ".json", "myjsonbucket");
+            json = documentManagementService.movieObjectForPaging(data,page);
         } catch (Exception e) {
-            e.getMessage();
+        	log.error(e.getMessage());
         }
         return ResponseEntity.ok(json);
     }
