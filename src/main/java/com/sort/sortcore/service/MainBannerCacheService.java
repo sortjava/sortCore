@@ -64,7 +64,7 @@ public class MainBannerCacheService implements MainBannerServiceApi {
                 log.info("Cache main-banner invalidated {}", x);
             });
             log.info("Populating {} cache at={}", "main-banner", SIMPLE_DATE_FORMAT.format(new Date()));
-            this.getListMainBannerContent(QUERY_MAP, "").thenApply((data) -> {
+            this.getListMainBannerContent(QUERY_MAP, "", 0).thenApply((data) -> {
                 return Optional.ofNullable(cache).map((c) -> {
                     this.cacheRefreshCounter.increment();
                     return c.putIfAbsent("DATA", data);
@@ -74,9 +74,10 @@ public class MainBannerCacheService implements MainBannerServiceApi {
             //log.info("main-banner cache build status={}", this.cacheEnabled);
         }
     }
+    
 
     @Override
-    public CompletableFuture<List<MainBannerContent>> getMainBannerData(String searchText) {
+    public CompletableFuture<List<MainBannerContent>> getMainBannerData(String searchText, Integer page) {
         if (this.cacheEnabled) {
             Optional<List<MainBannerContent>> cachedData = Optional
                     .ofNullable(this.cacheManager.getCache("main-banner")).map((cacheManager) -> {
@@ -92,53 +93,53 @@ public class MainBannerCacheService implements MainBannerServiceApi {
             }
             this.cacheMissCounter.increment();
         }
-        return this.getListMainBannerContent(QUERY_MAP, searchText);
+        return this.getListMainBannerContent(QUERY_MAP, searchText, page);
     }
 
     @Override
-    public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType, String searchText) {
+    public CompletableFuture<List<MainBannerContent>> getMainBannerMovieEventData(String txnType, String searchText, Integer page) {
         if ("movie".equalsIgnoreCase(txnType)) {
-            return this.getListMainBannerContent(MAIN_MOVIE_QUERY_MAP, searchText);
+            return this.getListMainBannerContent(MAIN_MOVIE_QUERY_MAP, searchText, page);
         } else {
-            return this.getListMainBannerContent(MAIN_EVENT_QUERY_MAP, searchText);
+            return this.getListMainBannerContent(MAIN_MOVIE_QUERY_MAP, searchText, page);
         }
     }
 
     @Override
-    public CompletableFuture<List<MainBannerContent>> getSearchData(String searchText, String searchType) {
+    public CompletableFuture<List<MainBannerContent>> getSearchData(String searchText, String searchType, Integer page) {
       /*  String[] strA = searchText.split("-");
         String sText = strA[1];
         sText = sText.replaceAll("\\s+", "+");*/
         searchText = searchText.replaceAll("\\s+", "+");
-        return this.getListMainBannerContent(Map.of("txn_type", searchType, "txn_title", searchText, "txn_genres", searchText, "txn_cast", searchText), searchText);
+        return this.getListMainBannerContent(Map.of("txn_type", searchType, "txn_title", searchText, "txn_genres", searchText, "txn_cast", searchText), searchText, page);
     }
 
     @Override
-    public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType, String searchText) {
+    public CompletableFuture<List<MainBannerContent>> getRecommendedBannerMovieEventData(String txnType, String searchText, Integer page) {
         if ("movie".equalsIgnoreCase(txnType)) {
-            return this.getListMainBannerContent(RECOMMENDED_MOVIE_QUERY_MAP, searchText);
+            return this.getListMainBannerContent(RECOMMENDED_MOVIE_QUERY_MAP, searchText, page);
         } else {
-            return this.getListMainBannerContent(RECOMMENDED_EVENT_QUERY_MAP, searchText);
+            return this.getListMainBannerContent(RECOMMENDED_EVENT_QUERY_MAP, searchText, page);
         }
     }
 
     @Override
-    public CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType, String searchText) {
-        return this.getListMainBannerContent(Map.of("aud_priority", "1", "aud_active", "1", "txn_type", txnType), searchText);
+    public CompletableFuture<List<MainBannerContent>> getTxnTypeList(String txnType, String searchText, Integer page) {
+        return this.getListMainBannerContent(Map.of("aud_priority", "1", "aud_active", "1", "txn_type", txnType), searchText, page);
     }
 
     @Override
     public CompletableFuture<List<MainBannerContent>> getTxnDetailsFavouritesById(String Id, String searchText) {
-        return this.getListMainBannerContent(Map.of("txn_id", Id), searchText);
+        return this.getListMainBannerContent(Map.of("txn_id", Id), searchText, 0);
     }
 
     @Override
     public List<TxnContent> getTxnDetailsById(String txnType, String Id, String searchText) {
-        return this.sortCoreServiceApi.queryTnxContent(Map.of("txn_type", txnType, "txn_id", Id), searchText);
+    	return this.sortCoreServiceApi.queryTnxContent(Map.of("txn_type", txnType, "txn_id", Id), searchText, 0);
     }
 
-    private CompletableFuture<List<MainBannerContent>> getListMainBannerContent(Map<String, Object> QUERY_TEXT, String searchText) {
-        List<TxnContent> txnContents = this.sortCoreServiceApi.queryTnxContent(QUERY_TEXT, searchText);
+    private CompletableFuture<List<MainBannerContent>> getListMainBannerContent(Map<String, Object> QUERY_TEXT, String searchText, Integer page) {
+        List<TxnContent> txnContents = this.sortCoreServiceApi.queryTnxContent(QUERY_TEXT, searchText, page);
         List<CompletableFuture<MainBannerContent>> completableFuturesOfMainBannerContent = txnContents.stream()
                 .map(this::getMainBannerContent).map((mbData) -> {
                     return this.callOmdbService(mbData).thenApply((omdbData) -> {

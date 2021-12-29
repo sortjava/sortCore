@@ -36,7 +36,7 @@ public class SortCoreService implements SortCoreServiceApi {
     private String txIndex;
 
     @Override
-    public List<TxnContent> queryTnxContent(@NonNull Map<String, Object> fields, String searchText) {
+    public List<TxnContent> queryTnxContent(@NonNull Map<String, Object> fields, String searchText, Integer page) {
         if (fields == null) {
             throw new NullPointerException("fields is marked non-null but is null");
         } else {
@@ -64,7 +64,8 @@ public class SortCoreService implements SortCoreServiceApi {
                 fieldSortBuilder.order(SortOrder.DESC);
                 searchSourceBuilder.sort(fieldSortBuilder); */
             }
-            searchSourceBuilder.size(5000);
+            searchSourceBuilder.from(page*10);
+            searchSourceBuilder.size(10);
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices(new String[]{this.txIndex});
             searchRequest.source(searchSourceBuilder);

@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface SortCoreServiceApi {
-    List<TxnContent> queryTnxContent(@NonNull Map<String, Object> fields, String searchText);
+    List<TxnContent> queryTnxContent(@NonNull Map<String, Object> fields, String searchText, Integer page);
 }
