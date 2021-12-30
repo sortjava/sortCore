@@ -61,6 +61,9 @@ public class MainBannerController {
     @Autowired
     LikeDislikeRepository likeDislikeRepository;
 
+    @Autowired
+    TrueFanRepository trueFanRepository;
+
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
     public CompletableFuture<List<MainBannerContent>> getMainBanner() {
@@ -320,6 +323,53 @@ public class MainBannerController {
         });
         StringBuilder sb = new StringBuilder("");
         favListString.forEach(movieID -> {
+            sb.append(movieID + " ");
+        });
+        return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString(), "");
+    }
+
+    @GetMapping(value = "/addTrueFan/{itemType}/{itemId}/{amount}", produces = "application/json")
+    public ResponseEntity addTrueFan(@PathVariable String itemType, @PathVariable String itemId, @PathVariable Integer amount, @RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!("GOOGLE".equalsIgnoreCase(tempProvider) || "FACEBOOK".equalsIgnoreCase(tempProvider) || "APPLE".equalsIgnoreCase(tempProvider))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+
+        /*if (trueFanRepository.existsByUserIdAndItemTypeAndItemId(user.getId(), itemType, itemId)) {
+            trueFanRepository.delete(trueFanRepository.findByUserIdAndItemTypeAndItemId(user.getId(), itemType, itemId));
+            return new ResponseEntity("Item successfully removed from True Fan list", HttpStatus.OK);
+        } else {*/
+        TrueFan trueFan = new TrueFan();
+        trueFan.setUserId(user.getId());
+        trueFan.setItemType(itemType);
+        trueFan.setItemId(itemId);
+        trueFan.setDonatedAmount(amount);
+        trueFanRepository.save(trueFan);
+
+        return new ResponseEntity("Item successfully added to True Fan list", HttpStatus.CREATED);
+        // }
+    }
+
+    @GetMapping(value = "/getTrueFan/{itemType}", produces = "application/json")
+    public CompletableFuture<List<MainBannerContent>> getTrueFan(@PathVariable String itemType, @RequestHeader("Authorization") String token) {
+        String tempEmail = jwtUtils.getUserEmailFromJwtToken(token.substring(7));
+        String str = tempEmail.substring(tempEmail.lastIndexOf("@") + 1);
+        String tempProvider = str.replace(".com", "");
+        if (!("GOOGLE".equalsIgnoreCase(tempProvider) || "FACEBOOK".equalsIgnoreCase(tempProvider) || "APPLE".equalsIgnoreCase(tempProvider))) {
+            tempProvider = "LOCAL";
+        }
+        User user = userRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())).get();
+
+        List<TrueFan> trueFanList = trueFanRepository.findAllByUserIdAndItemType(user.getId(), itemType);
+        List<String> trueFanListString = new ArrayList<>();
+        trueFanList.forEach(tempTrueFanList -> {
+            trueFanListString.add(tempTrueFanList.getItemId());
+        });
+        StringBuilder sb = new StringBuilder("");
+        trueFanListString.forEach(movieID -> {
             sb.append(movieID + " ");
         });
         return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString(), "");
