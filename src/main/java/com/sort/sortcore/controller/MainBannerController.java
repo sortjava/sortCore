@@ -206,16 +206,16 @@ public class MainBannerController {
         return new ResponseEntity<>(profileRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/genreList/{itemType}", produces = "application/json")
-    public ResponseEntity<?> downloadFile(@PathVariable String itemType, @RequestParam Integer page) {
-        String json = "";
+    @GetMapping(value = "/genreList/{itemType}/{genreType}", produces = "application/json")
+    public ResponseEntity<?> downloadFile(@PathVariable String itemType, @PathVariable String genreType, @RequestParam Integer page) {
+        String json = "[]";
         try {
             /*File resource = new ClassPathResource("/static/json_10-13-2021_12-34-27.json").getFile();
             File resource1 = new File()
             json = new String(Files.readAllBytes(resource.toPath()));*/
             
         	S3Object data = documentManagementService.downloadFileFromS3bucket(itemType + ".json", "myjsonbucket");
-            json = documentManagementService.movieObjectForPaging(data,page);
+            json = documentManagementService.movieObjectForPaging(data,genreType,page);
         } catch (Exception e) {
         	log.error(e.getMessage());
         }

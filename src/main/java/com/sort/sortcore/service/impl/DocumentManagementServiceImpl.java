@@ -31,7 +31,7 @@ public class DocumentManagementServiceImpl {
 		return object;
 	}
 
-	public String movieObjectForPaging(S3Object data, Integer page) {
+	public String movieObjectForPaging(S3Object data, String genreType, Integer page) {
 		try {
 			JSONArray movieCollectionsOutput = new JSONArray();
 
@@ -44,14 +44,25 @@ public class DocumentManagementServiceImpl {
 				JSONObject movieListByGenre = (JSONObject) movieCollectionObject;
 				String genre = movieListByGenre.get(FIRST_NODE_AUD_JSON_GENRES).toString();
 				String movies = movieListByGenre.get(FIRST_NODE_GENRES_DETAILS).toString();
-				JSONArray movieOutput = new JSONArray();
-				JSONArray movieObject = new JSONArray(movies);
-				movieObject.toList().stream().skip(page*5).limit(5).forEach(movie -> {
-					movieOutput.put(movie);
-				});
-				movieListByGenreOutput.put(FIRST_NODE_AUD_JSON_GENRES, genre);
-				movieListByGenreOutput.put(FIRST_NODE_GENRES_DETAILS, movieOutput);
-				movieCollectionsOutput.put(movieListByGenreOutput);
+				if (genreType != null && !genreType.isEmpty() && !genreType.isBlank() && genre.equalsIgnoreCase(genreType)) {
+					JSONArray movieOutput = new JSONArray();
+					JSONArray movieObject = new JSONArray(movies);
+					movieObject.toList().stream().skip(page*5).limit(5).forEach(movie -> {
+						movieOutput.put(movie);
+					});
+					movieListByGenreOutput.put(FIRST_NODE_AUD_JSON_GENRES, genre);
+					movieListByGenreOutput.put(FIRST_NODE_GENRES_DETAILS, movieOutput);
+					movieCollectionsOutput.put(movieListByGenreOutput);
+				} else if (genreType != null && !genreType.isEmpty() && !genreType.isBlank() && "ALL".equalsIgnoreCase(genreType)) {
+					JSONArray movieOutput = new JSONArray();
+					JSONArray movieObject = new JSONArray(movies);
+					movieObject.toList().stream().skip(page*5).limit(5).forEach(movie -> {
+						movieOutput.put(movie);
+					});
+					movieListByGenreOutput.put(FIRST_NODE_AUD_JSON_GENRES, genre);
+					movieListByGenreOutput.put(FIRST_NODE_GENRES_DETAILS, movieOutput);
+					movieCollectionsOutput.put(movieListByGenreOutput);
+				}				
 			});
 			return movieCollectionsOutput.toString();
 		} catch (Exception e) {
