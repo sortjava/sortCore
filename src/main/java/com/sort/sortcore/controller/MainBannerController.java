@@ -1,31 +1,65 @@
 package com.sort.sortcore.controller;
 
-import com.amazonaws.services.s3.model.S3Object;
-import com.sort.sortcore.api.MainBannerServiceApi;
-import com.sort.sortcore.data.*;
-import com.sort.sortcore.repository.*;
-import com.sort.sortcore.security.jwt.JwtUtils;
-import com.sort.sortcore.service.SortDataService;
-import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
-import io.swagger.annotations.ApiOperation;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.amazonaws.services.s3.model.S3Object;
+import com.sort.sortcore.api.MainBannerServiceApi;
+import com.sort.sortcore.data.EEventGenre;
+import com.sort.sortcore.data.EMovieGenre;
+import com.sort.sortcore.data.EMovieLanguage;
+import com.sort.sortcore.data.EventGenre;
+import com.sort.sortcore.data.Favourites;
+import com.sort.sortcore.data.LikeDislike;
+import com.sort.sortcore.data.LikeDislikeRequest;
+import com.sort.sortcore.data.MainBannerContent;
+import com.sort.sortcore.data.MovieGenre;
+import com.sort.sortcore.data.MovieLanguage;
+import com.sort.sortcore.data.PreferenceRequest;
+import com.sort.sortcore.data.Profile;
+import com.sort.sortcore.data.ProfileRequest;
+import com.sort.sortcore.data.Provider;
+import com.sort.sortcore.data.SortedData;
+import com.sort.sortcore.data.TrueFan;
+import com.sort.sortcore.data.TxnContent;
+import com.sort.sortcore.data.TxnContentVideo;
+import com.sort.sortcore.data.User;
+import com.sort.sortcore.repository.EventGenreRepository;
+import com.sort.sortcore.repository.FavouritesRepository;
+import com.sort.sortcore.repository.LikeDislikeRepository;
+import com.sort.sortcore.repository.MovieGenreRepository;
+import com.sort.sortcore.repository.MovieLanguageRepository;
+import com.sort.sortcore.repository.ProfileRepository;
+import com.sort.sortcore.repository.TrueFanRepository;
+import com.sort.sortcore.repository.TxnContentVideoRepository;
+import com.sort.sortcore.repository.UserRepository;
+import com.sort.sortcore.security.jwt.JwtUtils;
+import com.sort.sortcore.service.SortDataService;
+import com.sort.sortcore.service.impl.DocumentManagementServiceImpl;
+
+import io.swagger.annotations.ApiOperation;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -67,6 +101,9 @@ public class MainBannerController {
     
     @Autowired
     TrueFanRepository trueFanRepository;
+    
+    @Autowired
+    TxnContentVideoRepository txnContentVideoRepository;
 
     @ApiOperation(value = "Featured Content which are prioritized within active content", notes = "Service for featured content with priority active content.")
     @GetMapping(value = "/featuredBanner", produces = "application/json")
@@ -206,16 +243,16 @@ public class MainBannerController {
         return new ResponseEntity<>(profileRepository.findByEmailAndProvider(tempEmail, Provider.valueOf(tempProvider.toUpperCase())), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/genreList/{itemType}", produces = "application/json")
-    public ResponseEntity<?> downloadFile(@PathVariable String itemType, @RequestParam Integer page) {
-        String json = "";
+    @GetMapping(value = "/genreList/{itemType}/{genreType}", produces = "application/json")
+    public ResponseEntity<?> downloadFile(@PathVariable String itemType, @PathVariable String genreType, @RequestParam Integer page) {
+        String json = "[]";
         try {
             /*File resource = new ClassPathResource("/static/json_10-13-2021_12-34-27.json").getFile();
             File resource1 = new File()
             json = new String(Files.readAllBytes(resource.toPath()));*/
             
         	S3Object data = documentManagementService.downloadFileFromS3bucket(itemType + ".json", "myjsonbucket");
-            json = documentManagementService.movieObjectForPaging(data,page);
+            json = documentManagementService.movieObjectForPaging(data,genreType,page);
         } catch (Exception e) {
         	log.error(e.getMessage());
         }
@@ -378,6 +415,18 @@ public class MainBannerController {
         });
         return mainBannerServiceApi.getTxnDetailsFavouritesById(sb.toString(), "");
     }
+    
+	@GetMapping(value = "/getTxnVideoContent", produces = "application/json")
+	public ResponseEntity<List<TxnContentVideo>> getTxnVideoContent() {
+		List<TxnContentVideo> contentVideos = (List<TxnContentVideo>) txnContentVideoRepository.findAll();
+		return new ResponseEntity<>(contentVideos, HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/getTxnVideoContent/{itemId}", produces = "application/json")
+	public ResponseEntity<List<TxnContentVideo>> getTxnVideoContentByTxnId(@PathVariable String itemId) {
+		List<TxnContentVideo> contentVideos = (List<TxnContentVideo>) txnContentVideoRepository.findByTxnId(itemId);
+		return new ResponseEntity<>(contentVideos, HttpStatus.OK);
+	}
 
     @GetMapping(value = "/fetchGenreData/{genreType}", produces = "application/json")
     public List<?> fetchMovieLanguages(@PathVariable String genreType) {
